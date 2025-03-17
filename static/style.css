@@ -1,5 +1,6 @@
 body, .chat-container, .chat-box, .message, .chat-form, #chat-input, button {
     font-family: "Tektur", sans-serif;
+    color: #8A2BE2;
 }
 
 body {
@@ -7,20 +8,20 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f4f4f4;
+    background-color: #E6E6FA;
     margin: 0;
 }
 
 .chat-container {
     width: 600px;
-    background: white;
+    background: #B0C4DE;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
 .chat-box {
-    height: 500px;
+    height: 450px;
     overflow-y: auto;
     padding: 10px;
     border-bottom: 1px solid #ddd;
@@ -46,9 +47,9 @@ body {
 button {
     padding: 8px 12px;
     border: none;
-    background: #007bff;
+    background: #9370D8;
     color: white;
     cursor: pointer;
     border-radius: 4px;
-    margin-left: 5px;
+    margin: 10px;
 }
