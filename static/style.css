@@ -1,5 +1,8 @@
+body, .chat-container, .chat-box, .message, .chat-form, #chat-input, button {
+    font-family: "Tektur", sans-serif;
+}
+
 body {
-    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
