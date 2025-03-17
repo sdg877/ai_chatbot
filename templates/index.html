@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Chatbot</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="icon" href="/static/robot.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tektur:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="chat-container">
-        <div id="conversations-list"></div>
-        <button id="new-chat-button">New Chat</button>
-        <div id="chat-box" class="chat-box"></div>
-        <form id="chat-form" class="chat-form">
-            <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
-            <button type="submit">Send</button>
-        </form>
+      {% if current_user.is_authenticated %}
+      <p>Welcome, {{ username }}! <a href="/logout">Logout</a></p>
+      <div id="conversations-list"></div>
+      <button id="new-chat-button">New Chat</button>
+      <input type="text" id="search-input" placeholder="Search..." />
+      <button id="search-button">Search</button>
+      <div id="chat-box" class="chat-box"></div>
+      <form id="chat-form" class="chat-form">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Type a message..."
+          autocomplete="off"
+        />
+        <button type="submit">Send</button>
+      </form>
+      <div id="search-results"></div>
+      {% endif %}
     </div>
     <script src="/static/script.js"></script>
-</body>
+  </body>
 </html>
