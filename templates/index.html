@@ -29,12 +29,11 @@
       <input type="text" id="subject-input" placeholder="Enter Subject..." />
       <div id="chat-box" class="chat-box"></div>
       <form id="chat-form" class="chat-form">
-        <input
-          type="text"
+        <textarea
           id="chat-input"
           placeholder="Type a message..."
           autocomplete="off"
-        />
+        ></textarea>
         <button type="submit">Send</button>
       </form>
       <div id="search-results"></div>
@@ -51,13 +50,14 @@
     </div>
     <script src="/static/script.js"></script>
     <script>
-      document
-        .getElementById("toggle-conversations")
-        .addEventListener("click", function () {
-          document
-            .getElementById("conversations-list")
-            .classList.toggle("active");
+      document.addEventListener("DOMContentLoaded", () => {
+        const chatInput = document.getElementById("chat-input");
+
+        chatInput.addEventListener("input", function () {
+          this.style.height = "30px"; 
+          this.style.height = this.scrollHeight + "px"; /
         });
+      });
     </script>
   </body>
 </html>
