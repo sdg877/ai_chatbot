@@ -1,63 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Chatbot</title>
     <link rel="stylesheet" href="/static/style.css" />
     <link rel="icon" href="/static/robot.png" type="image/png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Tektur:wght@400..900&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
+</head>
+<body>
     <div class="chat-container">
-      {% if current_user.is_authenticated %}
-      <div class="sidebar">
-        <h5>Conversations</h5>
-        <div id="conversations-list" class="conversations-list">
-          <div id="conversations-list-content"></div>
-          <input type="text" id="search-input" placeholder="Search..." />
-          <button id="search-button">Search</button>
+        {% if current_user.is_authenticated %}
+        <div class="sidebar">
+            <h5>Conversations</h5>
+            <input type="text" id="search-input" placeholder="Search..." />
+            <button id="search-button">Search</button>
+            <div id="conversations-list" class="conversations-list">
+                <div id="conversations-list-content"></div>
+            </div>
+            <button id="new-chat-button">New Chat</button>
         </div>
-      </div>
 
-      <button id="new-chat-button">New Chat</button>
-      <input type="text" id="subject-input" placeholder="Enter Subject..." />
-      <div id="chat-box" class="chat-box"></div>
-      <form id="chat-form" class="chat-form">
-        <textarea
-          id="chat-input"
-          placeholder="Type a message..."
-          autocomplete="off"
-        ></textarea>
-        <button type="submit">Send</button>
-      </form>
-      <div id="search-results"></div>
-      {% endif %}
+        <input type="text" id="subject-input" placeholder="Enter Subject..." />
+        <div id="chat-box" class="chat-box"></div>
+        <form id="chat-form" class="chat-form">
+            <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+        <div id="search-results"></div>
+        {% endif %}
 
-      <div class="user-info">
-        <p>
-          Hi, {{ username }}! <br />
-          Welcome back!
-          <br />
-          <a href="/logout">Logout</a>
-        </p>
-      </div>
+        <div class="user-info">
+            <p>Hi, {{ username }}! <br />Welcome back!<br /><a href="/logout">Logout</a></p>
+        </div>
     </div>
     <script src="/static/script.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const chatInput = document.getElementById("chat-input");
-
-        chatInput.addEventListener("input", function () {
-          this.style.height = "30px"; 
-          this.style.height = this.scrollHeight + "px"; /
+        document.getElementById("toggle-conversations").addEventListener("click", function () {
+            document.getElementById("conversations-list").classList.toggle("active");
         });
-      });
     </script>
-  </body>
+</body>
 </html>
