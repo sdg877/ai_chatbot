@@ -25,6 +25,7 @@ function init() {
         conversationsListContent.innerHTML = "";
         conversations.forEach((conversation) => {
           const conversationDiv = document.createElement("div");
+          conversationDiv.classList.add("conversation-item");
           conversationDiv.textContent =
             conversation.subject ||
             conversation.conversation_name ||
@@ -225,6 +226,7 @@ function init() {
 
   fetchConversations();
 }
+
 
 function checkDOMReady() {
   if (document.readyState === "loading") {
