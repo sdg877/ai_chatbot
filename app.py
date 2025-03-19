@@ -15,7 +15,6 @@ import certifi
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 mongo_uri = os.getenv("DATABASE_URL")
@@ -32,21 +31,18 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-
 class User(UserMixin):
     def __init__(self, user_data):
         self.id = str(user_data["_id"])
         self.username = user_data["username"]
         self.password_hash = user_data["password"]
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = users_collection.find_one({"_id": user_id})  # Use string directly
+    user_data = users_collection.find_one({"_id": user_id})
     if user_data:
         return User(user_data)
     return None
-
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -57,13 +53,12 @@ def register():
         return jsonify({"error": "Username already exists"}), 400
 
     password_hash = generate_password_hash(password)
-    user_id = str(uuid.uuid4())  # Generate a valid UUID string
+    user_id = str(uuid.uuid4())
     users_collection.insert_one(
         {"_id": user_id, "username": username, "password": password_hash}
     )
 
     return jsonify({"message": "User registered successfully"})
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -78,22 +73,18 @@ def login():
         return jsonify({"error": "Invalid username or password"}), 401
     return render_template("login.html")
 
-
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("index"))
 
-
 @app.route("/")
-@login_required
 def index():
-    return render_template("index.html", username=current_user.username)
-
+    username = current_user.username if current_user.is_authenticated else None
+    return render_template("index.html", username=username)
 
 @app.route("/chat", methods=["POST"])
-@login_required
 def chat():
     user_message = request.json.get("message")
     conversation_id = request.json.get("conversation_id")
@@ -103,21 +94,24 @@ def chat():
     if not conversation_id:
         conversation_id = str(uuid.uuid4())
 
-    history = list(
-        chats.find(
-            {"user_id": str(current_user.id), "conversation_id": conversation_id},
-            {"_id": 0},
-        )
-    )
+        if not subject:
+            try:
+                # Generate subject using OpenAI
+                prompt = f"Generate a short title for this message: '{user_message}'"
+                response = openai.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=30,  # Adjust as needed
+                )
+                subject = response.choices[0].message.content.strip().strip('"')
+            except Exception as e:
+                print(f"Error generating subject: {e}")
+                subject = "New Conversation"  # Fallback title
 
     if not user_message:
-        return jsonify(history)
+        return jsonify([])
 
-    messages = (
-        [{"role": "user", "content": h["user"]} for h in history]
-        + [{"role": "assistant", "content": h["bot"]} for h in history]
-        + [{"role": "user", "content": user_message}]
-    )
+    messages = [{"role": "user", "content": user_message}]
 
     try:
         response = openai.chat.completions.create(
@@ -125,22 +119,19 @@ def chat():
         )
         bot_reply = response.choices[0].message.content
 
-        chats.insert_one(
-            {
+        if current_user.is_authenticated:
+            chats.insert_one({
                 "user": user_message,
                 "bot": bot_reply,
                 "user_id": str(current_user.id),
                 "conversation_id": conversation_id,
                 "conversation_name": conversation_name,
                 "subject": subject,
-            }
-        )
+            })
 
         return jsonify({"reply": bot_reply, "conversation_id": conversation_id})
     except Exception as e:
-        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
-
 
 @app.route("/conversations", methods=["GET"])
 @login_required
@@ -170,26 +161,26 @@ def conversations():
         ]
     )
 
-
 @app.route("/search", methods=["POST"])
-@login_required
 def search():
     search_term = request.json.get("search_term")
-    results = list(
-        chats.find(
-            {
-                "user_id": str(current_user.id),
-                "$or": [
-                    {"user": {"$regex": search_term, "$options": "i"}},
-                    {"bot": {"$regex": search_term, "$options": "i"}},
-                    {"subject": {"$regex": search_term, "$options": "i"}},
-                ],
-            },
-            {"_id": 0},
+    if current_user.is_authenticated:
+        results = list(
+            chats.find(
+                {
+                    "user_id": str(current_user.id),
+                    "$or": [
+                        {"user": {"$regex": search_term, "$options": "i"}},
+                        {"bot": {"$regex": search_term, "$options": "i"}},
+                        {"subject": {"$regex": search_term, "$options": "i"}},
+                    ],
+                },
+                {"_id": 0},
+            )
         )
-    )
+    else:
+        results = []
     return jsonify(results)
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
