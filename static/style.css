@@ -4,10 +4,10 @@ body,
 .message,
 .chat-form,
 #chat-input,
-button {
-  font-family: "Tektur", sans-serif;
+button,
+.sidebar-container { 
+  font-family: "Funnel Display", sans-serif;
   color: #8a2be2;
-  font-size: 14px;
 }
 
 body {
@@ -20,20 +20,31 @@ body {
 
 h5 {
   font-size: 22px;
-  font-weight: 400;
+  font-weight: 500;
+  margin-bottom: 15px;
 }
 
 #subject-input {
   font-family: "Tektur", sans-serif;
+  font-size: 20px;
+  margin: 10px;
+  margin-top: 25px;
+  margin-left: 25px;
 }
 
+#search-input {
+  font-size: 20px;
+  width: 65%;
+}
+ 
 .chat-container {
-  margin-top: 50px;
   width: 800px;
   background: #b0c4de;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin-top: 50px;
+  margin-left: 250px;
 }
 
 .chat-box {
@@ -44,13 +55,13 @@ h5 {
 }
 
 .message {
-  display: inline-block; /* Allows box to expand based on content */
-  min-height: 40px; /* Ensures a minimum size */
-  height: auto; /* Allows the box to expand */
-  max-width: 80%; /* Prevents messages from stretching too wide */
+  display: inline-block;
+  min-height: 40px;
+  height: auto;
+  max-width: 80%;
   padding: 10px;
-  white-space: pre-wrap; /* Ensures text wraps properly */
-  word-wrap: break-word; /* Prevents long words from breaking layout */
+  white-space: pre-wrap;
+  word-wrap: break-word;
   border-radius: 10px;
   margin: 5px;
 }
@@ -75,7 +86,7 @@ h5 {
 }
 
 #chat-input {
-  width: 100%;
+  width: 95%;
   min-height: 40px;
   max-height: 150px;
   height: auto;
@@ -85,25 +96,27 @@ h5 {
   word-break: break-word;
   padding: 10px;
   line-height: 1.4;
+  font-size: 18px;
   text-align: left;
   display: block;
 }
 
-.sidebar {
+.sidebar-container { 
+  margin-top: 10px;
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px;
+  width: 300px;
   height: 100%;
   background: #f0f0f0;
-  padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  display: block;
-  justify-content: center;
+}
+
+.sidebar { 
+  padding: 20px;
 }
 
 .conversations-list {
-  max-height: 80%;
   overflow-y: auto;
   display: block;
 }
@@ -115,21 +128,20 @@ h5 {
   align-items: flex-start;
   padding: 5px 10px;
   cursor: pointer;
-}
-
-.conversations-list-content > div {
-  padding: 5px;
-  margin-bottom: 3px;
-  width: 100%;
-  text-align: left;
-  box-sizing: border-box;
-  font-family: "Tektur", sans-serif;
   font-size: 20px;
+  height: 60%;
 }
 
-.chat-container {
-  margin-left: 250px;
-  width: calc(800px - 250px);
+.conversation-item {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.conversation-item:hover {
+  background-color: #e0e0e0;
 }
 
 button {
@@ -142,7 +154,6 @@ button {
   margin: 10px;
 }
 
-/* Added styles for user-info */
 .user-info {
   position: absolute;
   bottom: 10px;
