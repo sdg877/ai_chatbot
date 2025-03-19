@@ -23,27 +23,34 @@
             <button id="new-chat-button">New Chat</button>
         </div>
         <div class="user-info">
-            <p>Hi, {{ username }}! <br />Welcome back!<br /><a href="/logout">Logout</a></p>
+            <p>Hi, {{ current_user.username }}! <br />Welcome back!<br /><a href="/logout">Logout</a></p>
+        </div>
+        {% else %}
+        <div class="auth-sidebar">
+            <button id="toggle-auth">Switch to Login</button>
+            <div id="register-form" class="auth-form">
+                <input type="text" id="register-username" placeholder="Username" required>
+                <input type="password" id="register-password" placeholder="Password" required>
+                <button id="register-submit">Register</button>
+            </div>
+            <div id="login-form" class="auth-form" style="display: none;">
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button id="login-submit">Login</button>
+            </div>
+            <div id="auth-message"></div>
         </div>
         {% endif %}
     </div>
 
     <div class="chat-container">
-        {% if current_user.is_authenticated %}
-        <input type="text" id="subject-input" placeholder="Enter Subject..." />
         <div id="chat-box" class="chat-box"></div>
         <form id="chat-form" class="chat-form">
             <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
             <button type="submit">Send</button>
         </form>
         <div id="search-results"></div>
-        {% endif %}
     </div>
     <script src="/static/script.js"></script>
-    <script>
-        document.getElementById("toggle-conversations").addEventListener("click", function () {
-            document.getElementById("conversations-list").classList.toggle("active");
-        });
-    </script>
 </body>
 </html>
