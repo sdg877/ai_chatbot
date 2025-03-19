@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="/static/style.css" />
     <link rel="icon" href="/static/robot.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect="https-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container">
+    <div class="sidebar-container">
         {% if current_user.is_authenticated %}
         <div class="sidebar">
             <h5>Conversations</h5>
@@ -22,7 +23,11 @@
             </div>
             <button id="new-chat-button">New Chat</button>
         </div>
+        {% endif %}
+    </div>
 
+    <div class="chat-container">
+        {% if current_user.is_authenticated %}
         <input type="text" id="subject-input" placeholder="Enter Subject..." />
         <div id="chat-box" class="chat-box"></div>
         <form id="chat-form" class="chat-form">
