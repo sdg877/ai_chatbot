@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/static/style.css" />
     <link rel="icon" href="/static/robot.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect="https-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
 </head>
@@ -23,6 +22,9 @@
             </div>
             <button id="new-chat-button">New Chat</button>
         </div>
+        <div class="user-info">
+            <p>Hi, {{ username }}! <br />Welcome back!<br /><a href="/logout">Logout</a></p>
+        </div>
         {% endif %}
     </div>
 
@@ -36,10 +38,6 @@
         </form>
         <div id="search-results"></div>
         {% endif %}
-
-        <div class="user-info">
-            <p>Hi, {{ username }}! <br />Welcome back!<br /><a href="/logout">Logout</a></p>
-        </div>
     </div>
     <script src="/static/script.js"></script>
     <script>
