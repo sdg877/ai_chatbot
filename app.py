@@ -31,11 +31,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+
 class User(UserMixin):
     def __init__(self, user_data):
         self.id = str(user_data["_id"])
         self.username = user_data["username"]
         self.password_hash = user_data["password"]
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -43,6 +45,7 @@ def load_user(user_id):
     if user_data:
         return User(user_data)
     return None
+
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -60,6 +63,7 @@ def register():
 
     return jsonify({"message": "User registered successfully"})
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -73,16 +77,19 @@ def login():
         return jsonify({"error": "Invalid username or password"}), 401
     return render_template("login.html")
 
+
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("index"))
 
+
 @app.route("/")
 def index():
     username = current_user.username if current_user.is_authenticated else None
     return render_template("index.html", username=username)
+
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -109,7 +116,7 @@ def chat():
                 subject = "New Conversation"  # Fallback title
 
     if not user_message:
-        return jsonify([])
+        return jsonify()
 
     messages = [{"role": "user", "content": user_message}]
 
@@ -120,18 +127,21 @@ def chat():
         bot_reply = response.choices[0].message.content
 
         if current_user.is_authenticated:
-            chats.insert_one({
-                "user": user_message,
-                "bot": bot_reply,
-                "user_id": str(current_user.id),
-                "conversation_id": conversation_id,
-                "conversation_name": conversation_name,
-                "subject": subject,
-            })
+            chats.insert_one(
+                {
+                    "user": user_message,
+                    "bot": bot_reply,
+                    "user_id": str(current_user.id),
+                    "conversation_id": conversation_id,
+                    "conversation_name": conversation_name,
+                    "subject": subject,
+                }
+            )
 
         return jsonify({"reply": bot_reply, "conversation_id": conversation_id})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/conversations", methods=["GET"])
 @login_required
@@ -161,6 +171,7 @@ def conversations():
         ]
     )
 
+
 @app.route("/search", methods=["POST"])
 def search():
     search_term = request.json.get("search_term")
@@ -181,6 +192,24 @@ def search():
     else:
         results = []
     return jsonify(results)
+
+
+@app.route("/load_conversation", methods=["POST"])
+def load_conversation():
+    conversation_id = request.json.get("conversation_id")
+
+    if not conversation_id:
+        return jsonify({"error": "Conversation ID is required"}), 400
+
+    messages = list(
+        chats.find(
+            {"conversation_id": conversation_id, "user_id": str(current_user.id)},
+            {"_id": 0},
+        )
+    )
+
+    return jsonify(messages)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
