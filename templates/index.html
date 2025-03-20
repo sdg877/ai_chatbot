@@ -28,10 +28,7 @@
         </div>
         <div class="user-info">
           <p>
-            Hi, {{ current_user.username }}! <br />Welcome back!<br /><a
-              href="/logout"
-              >Logout</a
-            >
+            Hi, {{ current_user.username.capitalize() }}! <br />Welcome back!<br /><a href="/logout">Logout</a>
           </p>
         </div>
         {% else %}
