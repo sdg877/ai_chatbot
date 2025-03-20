@@ -92,6 +92,7 @@ h5 {
   height: auto;
   align-items: flex-start;
   flex-wrap: wrap;
+  justify-content: center; 
 }
 
 #chat-input {
@@ -158,6 +159,10 @@ button {
   border-radius: 4px;
   margin: 15px;
   font-size: 18px;
+}
+
+.send-button {
+  align-items: center;
 }
 
 .user-info {
