@@ -1,56 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Chatbot</title>
     <link rel="stylesheet" href="/static/style.css" />
     <link rel="icon" href="/static/robot.png" type="image/png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="sidebar-container">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="main-wrapper">
+      <div class="sidebar-container">
         {% if current_user.is_authenticated %}
         <div class="sidebar">
-            <h5>Conversations</h5>
-            <input type="text" id="search-input" placeholder="Search..." />
-            <button id="search-button">Search</button>
-            <div id="conversations-list" class="conversations-list">
-                <div id="conversations-list-content"></div>
-            </div>
-            <button id="new-chat-button">New Chat</button>
+          <h5>Conversations</h5>
+          <input type="text" id="search-input" placeholder="Search..." />
+          <button id="search-button">Search</button>
+          <div id="conversations-list" class="conversations-list">
+            <div id="conversations-list-content"></div>
+          </div>
+          <button id="new-chat-button">New Chat</button>
         </div>
         <div class="user-info">
-            <p>Hi, {{ current_user.username }}! <br />Welcome back!<br /><a href="/logout">Logout</a></p>
+          <p>
+            Hi, {{ current_user.username }}! <br />Welcome back!<br /><a
+              href="/logout"
+              >Logout</a
+            >
+          </p>
         </div>
         {% else %}
         <div class="auth-sidebar">
-            <button id="toggle-auth">Switch to Login</button>
-            <div id="register-form" class="auth-form">
-                <input type="text" id="register-username" placeholder="Username" required>
-                <input type="password" id="register-password" placeholder="Password" required>
-                <button id="register-submit">Register</button>
-            </div>
-            <div id="login-form" class="auth-form" style="display: none;">
-                <input type="text" id="login-username" placeholder="Username" required>
-                <input type="password" id="login-password" placeholder="Password" required>
-                <button id="login-submit">Login</button>
-            </div>
-            <div id="auth-message"></div>
+          <button id="toggle-auth">Switch to Login</button>
+          <div id="register-form" class="auth-form">
+            <input
+              type="text"
+              id="register-username"
+              placeholder="Username"
+              required
+            />
+            <input
+              type="password"
+              id="register-password"
+              placeholder="Password"
+              required
+            />
+            <button id="register-submit">Register</button>
+          </div>
+          <div id="login-form" class="auth-form" style="display: none">
+            <input
+              type="text"
+              id="login-username"
+              placeholder="Username"
+              required
+            />
+            <input
+              type="password"
+              id="login-password"
+              placeholder="Password"
+              required
+            />
+            <button id="login-submit">Login</button>
+          </div>
+          <div id="auth-message"></div>
         </div>
         {% endif %}
-    </div>
+      </div>
 
-    <div class="chat-container">
+      <div class="chat-container">
         <div id="chat-box" class="chat-box"></div>
         <form id="chat-form" class="chat-form">
-            <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
-            <button type="submit">Send</button>
+          <textarea
+            id="chat-input"
+            placeholder="Type a message..."
+            autocomplete="off"
+          ></textarea>
+
+          <button type="submit">Send</button>
         </form>
         <div id="search-results"></div>
+      </div>
     </div>
     <script src="/static/script.js"></script>
-</body>
+  </body>
 </html>
