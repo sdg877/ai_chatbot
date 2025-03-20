@@ -16,8 +16,8 @@
   <body>
     <div class="main-wrapper">
       <div class="sidebar-container">
-        {% if current_user.is_authenticated %}
         <div class="sidebar">
+          {% if current_user.is_authenticated %}
           <h5>Conversations</h5>
           <div class="search-container">
             <input type="text" id="search-input" placeholder="Search..." />
@@ -32,44 +32,25 @@
               Hi, {{ current_user.username.capitalize() }}! <br />Welcome back!<br /><a href="/logout">Logout</a>
             </p>
           </div>
-        </div>
-        {% else %}
-        <div class="auth-sidebar">
-          <p class="guest-message">Login or sign up to save your chat history</p>
-          <button id="toggle-auth">Switch to Login</button>
-          <div id="register-form" class="auth-form">
-            <input
-              type="text"
-              id="register-username"
-              placeholder="Username"
-              required
-            />
-            <input
-              type="password"
-              id="register-password"
-              placeholder="Password"
-              required
-            />
-            <button id="register-submit">Register</button>
+          {% else %}
+          <div class="auth-sidebar">
+            <p class="guest-message">Login or sign up to save your chat history</p>
+            <button id="toggle-auth">Switch to Login</button>
+            <div id="register-form" class="auth-form">
+              <input type="text" id="register-username" placeholder="Username" required />
+              <input type="password" id="register-password" placeholder="Password" required />
+              <button id="register-submit">Register</button>
+            </div>
+            <div id="login-form" class="auth-form" style="display: none">
+              <input type="text" id="login-username" placeholder="Username" required />
+              <input type="password" id="login-password" placeholder="Password" required />
+              <button id="login-submit">Login</button>
+            </div>
+            <div id="auth-message"></div>
           </div>
-          <div id="login-form" class="auth-form" style="display: none">
-            <input
-              type="text"
-              id="login-username"
-              placeholder="Username"
-              required
-            />
-            <input
-              type="password"
-              id="login-password"
-              placeholder="Password"
-              required
-            />
-            <button id="login-submit">Login</button>
-          </div>
-          <div id="auth-message"></div>
+          <button id="new-chat-button">New Chat</button>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
 
       <div class="chat-container">
