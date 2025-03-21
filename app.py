@@ -210,6 +210,38 @@ def load_conversation():
 
     return jsonify(messages)
 
+@app.route("/delete_conversation", methods=["POST"])
+@login_required
+def delete_conversation():
+    conversation_id = request.json.get("conversation_id")
+    if conversation_id:
+        chats.delete_many(
+            {"conversation_id": conversation_id, "user_id": str(current_user.id)}
+        )
+        return jsonify({"message": "Conversation deleted"})
+    return jsonify({"error": "Conversation ID missing"}), 400
+
+@app.route("/rename_conversation", methods=["POST"])
+@login_required
+def rename_conversation():
+    conversation_id = request.json.get("conversation_id")
+    new_name = request.json.get("new_name")
+
+    print(f"Renaming: {conversation_id}, {new_name}")  # Debugging
+
+    if conversation_id and new_name:
+        try:
+            chats.update_many(
+                {"conversation_id": conversation_id, "user_id": str(current_user.id)},
+                {"$set": {"conversation_name": new_name}},
+            )
+            return jsonify({"message": "Conversation renamed"})
+        except Exception as e:
+            print(f"Error renaming: {e}")  # Debugging
+            return jsonify({"error": f"Error renaming: {e}"}), 500
+
+    return jsonify({"error": "Conversation ID or new name missing"}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
