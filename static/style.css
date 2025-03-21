@@ -121,6 +121,7 @@ h5 {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 25px;
 }
 
 #search-button {
@@ -147,7 +148,7 @@ h5 {
   background-color: #f0f0f0;
   padding: 20px;
   box-sizing: border-box;
-  height: 100%;
+  height: 100vh;
 }
 
 .conversations-list {
@@ -199,7 +200,11 @@ button {
 
 /* User info styles */
 .user-info {
-  margin-top: auto;
+  margin: 15px;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 .user-info p {
