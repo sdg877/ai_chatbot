@@ -163,7 +163,6 @@ h5 {
 }
 
 .conversations-list {
-  flex-grow: 1;
   overflow-y: auto;
   display: block;
   padding-bottom: 100px;
