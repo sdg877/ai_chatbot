@@ -18,6 +18,11 @@
       <div class="sidebar-container">
         <div class="sidebar">
           {% if current_user.is_authenticated %}
+          <div class="user-info">  <p>
+              Hi, {{ current_user.username.capitalize() }}! <br />Welcome back!<br /><a href="/logout">Logout</a>
+            </p>
+          </div>
+      
           <h5>Conversations</h5>
           <div class="search-container">
             <input type="text" id="search-input" placeholder="Search..." />
@@ -27,11 +32,7 @@
             <div id="conversations-list-content"></div>
           </div>
           <button id="new-chat-button">New Chat</button>
-          <div class="user-info">
-            <p>
-              Hi, {{ current_user.username.capitalize() }}! <br />Welcome back!<br /><a href="/logout">Logout</a>
-            </p>
-          </div>
+      
           {% else %}
           <div class="auth-sidebar">
             <p class="guest-message">Login or sign up to save your chat history</p>
