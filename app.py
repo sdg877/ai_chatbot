@@ -90,6 +90,7 @@ def index():
     username = current_user.username if current_user.is_authenticated else None
     return render_template("index.html", username=username)
 
+
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message")
@@ -99,6 +100,10 @@ def chat():
 
     if not user_message:
         return jsonify()
+
+    # Generate a new conversation ID if one doesn't exist
+    if conversation_id is None:
+        conversation_id = str(uuid.uuid4())
 
     # If subject is None, generate it
     if subject is None:
@@ -118,12 +123,15 @@ def chat():
     try:
         if current_user.is_authenticated:
             chat_history = list(
-                chats.find({"conversation_id": conversation_id, "user_id": str(current_user.id)})
+                chats.find(
+                    {
+                        "conversation_id": conversation_id,
+                        "user_id": str(current_user.id),
+                    }
+                )
             )
         else:
-            chat_history = list(
-                chats.find({"conversation_id": conversation_id})
-            )
+            chat_history = list(chats.find({"conversation_id": conversation_id}))
     except Exception as e:
         return jsonify({"error": "Database error"}), 500
 
@@ -174,7 +182,9 @@ def chat():
             print(f"Error storing in MongoDB: {e}")
             return jsonify({"error": "Database error"}), 500
 
-        return jsonify({"reply": bot_reply, "conversation_id": conversation_id, "subject": subject})
+        return jsonify(
+            {"reply": bot_reply, "conversation_id": conversation_id, "subject": subject}
+        )
     except Exception as e:
         print(f"Error in OpenAI API call: {e}")
         return jsonify({"error": "OpenAI API error"}), 500
@@ -183,30 +193,35 @@ def chat():
 @app.route("/conversations", methods=["GET"])
 @login_required
 def conversations():
-    conversations = list(
-        chats.aggregate(
+    try:
+        conversations = list(
+            chats.aggregate(
+                [
+                    {"$match": {"user_id": str(current_user.id)}},
+                    {
+                        "$group": {
+                            "_id": "$conversation_id",
+                            "name": {"$first": "$conversation_name"},
+                            "subject": {"$first": "$subject"},
+                        }
+                    },
+                ]
+            )
+        )
+        print(f"Conversations fetched: {conversations}")  # Debugging log
+        return jsonify(
             [
-                {"$match": {"user_id": str(current_user.id)}},
                 {
-                    "$group": {
-                        "_id": "$conversation_id",
-                        "name": {"$first": "$conversation_name"},
-                        "subject": {"$first": "$subject"},
-                    }
-                },
+                    "conversation_id": c["_id"],
+                    "conversation_name": c["name"],
+                    "subject": c["subject"] if c["subject"] else c["_id"],
+                }
+                for c in conversations
             ]
         )
-    )
-    return jsonify(
-        [
-            {
-                "conversation_id": c["_id"],
-                "conversation_name": c["name"],
-                "subject": c["subject"] if c["subject"] else c["_id"],
-            }
-            for c in conversations
-        ]
-    )
+    except Exception as e:
+        print(f"Error fetching conversations: {e}")  # error log
+        return jsonify({"error": "Failed to fetch conversations"}), 500
 
 
 @app.route("/search", methods=["POST"])
@@ -258,6 +273,7 @@ def load_conversation():
 
     return jsonify(messages)
 
+
 @app.route("/delete_conversation", methods=["POST"])
 @login_required
 def delete_conversation():
@@ -268,6 +284,7 @@ def delete_conversation():
         )
         return jsonify({"message": "Conversation deleted"})
     return jsonify({"error": "Conversation ID missing"}), 400
+
 
 @app.route("/rename_conversation", methods=["POST"])
 @login_required
