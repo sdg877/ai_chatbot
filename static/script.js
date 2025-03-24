@@ -368,4 +368,11 @@ function init() {
       toggleAuth.textContent = "Switch to Login";
     }
   }
+
+  chatInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) { 
+        event.preventDefault(); 
+        handleChatSubmit(event);
+    }
+});
 }
