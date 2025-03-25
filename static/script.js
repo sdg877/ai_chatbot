@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", init);
 
 function init() {
-  console.log("Initializing script...");
-
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
   const chatBox = document.getElementById("chat-box");
@@ -35,6 +33,23 @@ function init() {
   if (loginSubmit && loginForm)
     loginSubmit.addEventListener("click", handleLogin);
   if (toggleAuth) toggleAuth.addEventListener("click", handleToggle);
+
+  // Menu Toggle
+  const menuToggle = document.getElementById("menu-toggle");
+  const closeMenu = document.getElementById("close-menu");
+  const sidebar = document.getElementById("sidebar");
+
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener("click", function () {
+      sidebar.classList.add("active");
+    });
+  }
+
+  if (closeMenu && sidebar) {
+    closeMenu.addEventListener("click", function () {
+      sidebar.classList.remove("active");
+    });
+  }
 
   function fetchConversations() {
     if (!userLoggedIn) {
@@ -369,10 +384,10 @@ function init() {
     }
   }
 
-  chatInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter" && !event.shiftKey) { 
-        event.preventDefault(); 
-        handleChatSubmit(event);
+  chatInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleChatSubmit(event);
     }
-});
+  });
 }
