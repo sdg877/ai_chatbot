@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Chatbot</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/style.css?v=2">
+
     <link rel="icon" href="/static/robot.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,8 +15,13 @@
     />
   </head>
   <body>
+    <div class="mobile-header">
+        <button id="menu-toggle">☰</button>
+    </div>
+
     <div class="main-wrapper">
-      <div class="sidebar-container">
+      <div class="sidebar-container" id="sidebar">
+        <button id="close-menu">×</button>
         <div class="sidebar">
           {% if current_user.is_authenticated %}
           <div class="user-info">  <p>
