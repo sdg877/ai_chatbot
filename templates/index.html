@@ -4,19 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Chatbot</title>
-    <link rel="stylesheet" href="/static/style.css?v=2">
+    <link rel="stylesheet" href="/static/style.css?v=2" />
 
     <link rel="icon" href="/static/robot.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
     <div class="mobile-header">
-        <button id="menu-toggle">☰</button>
+      <button id="menu-toggle">☰</button>
     </div>
 
     <div class="main-wrapper">
@@ -24,11 +26,13 @@
         <button id="close-menu">×</button>
         <div class="sidebar">
           {% if current_user.is_authenticated %}
-          <div class="user-info">  <p>
-              Hi, {{ current_user.username.capitalize() }}! <br />Welcome back!<br /><a href="/logout">Logout</a>
+          <div class="user-info">
+            <p>
+              Hi, {{ current_user.username.capitalize() }}! <br />Welcome
+              back!<br /><a href="/logout">Logout</a>
             </p>
           </div>
-      
+
           <h5>Conversations</h5>
           <div class="search-container">
             <input type="text" id="search-input" placeholder="Search..." />
@@ -38,19 +42,41 @@
             <div id="conversations-list-content"></div>
           </div>
           <button id="new-chat-button">New Chat</button>
-      
+
           {% else %}
           <div class="auth-sidebar">
-            <p class="guest-message">Login or sign up to save your chat history</p>
+            <p class="guest-message">
+              Login or sign up to save your chat history
+            </p>
             <button id="toggle-auth">Switch to Login</button>
             <div id="register-form" class="auth-form">
-              <input type="text" id="register-username" placeholder="Username" required />
-              <input type="password" id="register-password" placeholder="Password" required />
+              <input
+                type="text"
+                id="register-username"
+                placeholder="Username"
+                required
+              />
+              <input
+                type="password"
+                id="register-password"
+                placeholder="Password"
+                required
+              />
               <button id="register-submit">Register</button>
             </div>
             <div id="login-form" class="auth-form" style="display: none">
-              <input type="text" id="login-username" placeholder="Username" required />
-              <input type="password" id="login-password" placeholder="Password" required />
+              <input
+                type="text"
+                id="login-username"
+                placeholder="Username"
+                required
+              />
+              <input
+                type="password"
+                id="login-password"
+                placeholder="Password"
+                required
+              />
               <button id="login-submit">Login</button>
             </div>
             <div id="auth-message"></div>
