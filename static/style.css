@@ -146,6 +146,11 @@ h5 {
 }
 
 /* Sidebar styles */
+.toggle-container {
+  display: flex;
+  justify-content: center; 
+}
+
 .sidebar-container {
   display: flex;
   flex-direction: column;
@@ -240,7 +245,7 @@ button {
 .guest-message {
   text-align: center;
   margin-bottom: 20px;
-  font-size: 16px;
+  font-size: 20px;
   color: #555;
 }
 
@@ -271,24 +276,27 @@ button {
 
 #toggle-auth {
   padding: 10px 16px;
-  background-color: #e0e0e0;
+  background-color: #D8BFD8;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
   margin-top: 20px;
+  align-items: center;
 }
 
 @media (max-width: 768px) {
   .mobile-header {
     display: flex;
-    justify-content: start;
+    justify-content: center; 
+    align-items: center;
     padding: 10px;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 10;
   }
+
 
   #menu-toggle {
     font-size: 20px;
@@ -306,7 +314,7 @@ button {
     height: 100vh;
     background: #f0f0f0;
     transition: left 0.3s ease;
-    padding: 10px; /* Reduced padding */
+    padding: 10px; 
   }
 
   .sidebar-container.active {
