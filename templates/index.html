@@ -46,7 +46,7 @@
           {% else %}
           <div class="auth-sidebar">
             <p class="guest-message">
-              Login or sign up to save your chat history.
+              Login or sign up to save your chat history
             </p>
             <div class="toggle-container">
               <button id="toggle-auth">Switch to Login</button>
@@ -64,7 +64,9 @@
                 placeholder="Password"
                 required
               />
-              <button id="register-submit">Register</button>
+              <div class="form-buttons">
+                <button id="register-submit">Register</button>
+              </div>
             </div>
             <div id="login-form" class="auth-form" style="display: none">
               <input
@@ -79,7 +81,9 @@
                 placeholder="Password"
                 required
               />
-              <button id="login-submit">Login</button>
+              <div class="form-buttons">
+                <button id="login-submit">Login</button>
+              </div>
             </div>
             <div id="auth-message"></div>
           </div>
