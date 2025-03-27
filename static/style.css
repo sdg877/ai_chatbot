@@ -205,6 +205,22 @@ h5 {
   font-size: 16px;
 }
 
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.auth-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 95%;
+}
+
+
 /* Button styles */
 button {
   padding: 8px 8px;
@@ -217,6 +233,22 @@ button {
   font-size: 18px;
 }
 
+.form-buttons {
+  display: flex;
+  justify-content: center; 
+  margin-top: 10px; 
+}
+
+.form-buttons button {
+  padding: 10px 16px;
+  background-color: #9370d8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 .send-button {
   align-items: center;
 }
@@ -224,6 +256,7 @@ button {
 #new-chat-button {
   margin-top: auto;
   margin-bottom: 20px;
+  margin-top: 80px;
   width: 80%;
 }
 
@@ -297,13 +330,18 @@ button {
     z-index: 10;
   }
 
+  .auth-sidebar {
+    margin-top: 60px; 
+  }
 
   #menu-toggle {
-    font-size: 20px;
+    font-size: 30px;
     background: none;
     border: none;
     cursor: pointer;
     padding: 5px;
+    color: #6A5ACD;
+    margin-bottom: 30px;
   }
 
   .sidebar-container {
@@ -327,15 +365,16 @@ button {
     right: 10px;
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
     cursor: pointer;
     display: block;
+    color: 	#6A5ACD;
   }
 
   .chat-container {
-    width: 95%;
+    width: 92%;
     height: 80vh;
-    margin: 60px auto 10px auto;
+    margin: 80px auto 10px auto;
   }
 
   .conversations-list {
