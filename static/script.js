@@ -77,7 +77,6 @@ function init() {
       });
     });
   }
-  
 
   function fetchConversations() {
     if (!userLoggedIn) {
