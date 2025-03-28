@@ -33,6 +33,7 @@ function init() {
   if (loginSubmit && loginForm)
     loginSubmit.addEventListener("click", handleLogin);
   if (toggleAuth) toggleAuth.addEventListener("click", handleToggle);
+  if (chatBox) displayWelcomeMessage();
 
   // Menu Toggle
   const menuToggle = document.getElementById("menu-toggle");
@@ -48,6 +49,33 @@ function init() {
   if (closeMenu && sidebar) {
     closeMenu.addEventListener("click", function () {
       sidebar.classList.remove("active");
+    });
+  }
+
+  function displayWelcomeMessage() {
+    if (!chatBox) return;
+
+    const messageContainer = document.createElement("div");
+    messageContainer.classList.add("bot-message");
+
+    messageContainer.innerHTML = `
+        <p><strong>How can I help today?</strong></p>
+        <ul id="example-prompts">
+            <li class="example">How do I reset my password?</li>
+            <li class="example">Tell me a fun fact!</li>
+            <li class="example">What's the weather like today?</li>
+            <li class="example">Can you explain recursion?</li>
+        </ul>
+    `;
+
+    chatBox.appendChild(messageContainer);
+
+    // Allow users to click an example to auto-fill the input
+    document.querySelectorAll(".example").forEach((item) => {
+      item.addEventListener("click", function () {
+        chatInput.value = this.textContent;
+        chatInput.focus();
+      });
     });
   }
 
