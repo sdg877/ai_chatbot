@@ -53,11 +53,11 @@ function init() {
   }
 
   function displayWelcomeMessage() {
-    if (!chatBox) return;
-
+    if (!chatBox || currentConversationId || isNewChat) return;  
+  
     const messageContainer = document.createElement("div");
     messageContainer.classList.add("bot-message");
-
+  
     messageContainer.innerHTML = `
         <p><strong>How can I help today?</strong></p>
         <ul id="example-prompts">
@@ -66,9 +66,9 @@ function init() {
             <li class="example">Can you explain recursion?</li>
         </ul>
     `;
-
+  
     chatBox.appendChild(messageContainer);
-
+  
     // Allow users to click an example to auto-fill the input
     document.querySelectorAll(".example").forEach((item) => {
       item.addEventListener("click", function () {
@@ -77,6 +77,7 @@ function init() {
       });
     });
   }
+  
 
   function fetchConversations() {
     if (!userLoggedIn) {
