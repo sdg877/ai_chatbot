@@ -61,7 +61,6 @@ function init() {
     messageContainer.innerHTML = `
         <p><strong>How can I help today?</strong></p>
         <ul id="example-prompts">
-            <li class="example">How do I reset my password?</li>
             <li class="example">Tell me a fun fact!</li>
             <li class="example">What's the weather like today?</li>
             <li class="example">Can you explain recursion?</li>
