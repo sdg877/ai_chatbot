@@ -14,6 +14,7 @@ from pymongo import MongoClient
 import certifi
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
+import logging
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -93,6 +94,8 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    if chats is None: return jsonify({"error": "Database error"}), 500; #added to avoid error if mongo connection fails.
+
     user_message = request.json.get("message")
     conversation_id = request.json.get("conversation_id")
     conversation_name = request.json.get("conversation_name")
@@ -116,7 +119,7 @@ def chat():
             )
             subject = response.choices[0].message.content.strip().strip('"')
         except Exception as e:
-            print(f"Error generating subject: {e}")
+            logging.error(f"Error generating subject: {e}")
             subject = "New Conversation"
 
     # Retrieve the conversation history from MongoDB if `conversation_id` exists
@@ -133,7 +136,8 @@ def chat():
         else:
             chat_history = list(chats.find({"conversation_id": conversation_id}))
     except Exception as e:
-        return jsonify({"error": "Database error"}), 500
+        logging.error(f"Database error retrieving chat history: {e}")
+        return jsonify({"error": "Database error retrieving chat history"}), 500
 
     messages = []
     for item in chat_history:
@@ -179,17 +183,17 @@ def chat():
                     }
                 )
         except Exception as e:
-            print(f"Error storing in MongoDB: {e}")
-            return jsonify({"error": "Database error"}), 500
+            logging.error(f"Database error storing chat: {e}")
+            return jsonify({"error": "Database error storing chat"}), 500
 
         return jsonify(
             {"reply": bot_reply, "conversation_id": conversation_id, "subject": subject}
         )
     except Exception as e:
-        print(f"Error in OpenAI API call: {e}")
+        logging.error(f"Error in OpenAI API call: {e}")
         return jsonify({"error": "OpenAI API error"}), 500
-
-
+    
+    
 @app.route("/conversations", methods=["GET"])
 @login_required
 def conversations():
