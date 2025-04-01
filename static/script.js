@@ -1,3 +1,6 @@
+let hasDisplayedWelcomeMessage = false;
+let isNewChat = true;
+
 document.addEventListener("DOMContentLoaded", init);
 
 function init() {
@@ -33,7 +36,12 @@ function init() {
   if (loginSubmit && loginForm)
     loginSubmit.addEventListener("click", handleLogin);
   if (toggleAuth) toggleAuth.addEventListener("click", handleToggle);
-  if (chatBox) displayWelcomeMessage();
+
+  // Display the welcome message only if it's a new chat or no conversation exists.
+  if (chatBox && !hasDisplayedWelcomeMessage) {
+    displayWelcomeMessage();
+    hasDisplayedWelcomeMessage = true;
+  }
 
   // Menu Toggle
   const menuToggle = document.getElementById("menu-toggle");
@@ -53,11 +61,15 @@ function init() {
   }
 
   function displayWelcomeMessage() {
-    if (!chatBox || currentConversationId || isNewChat) return;  
-  
+    const chatBox = document.getElementById("chat-box");
+    if (!chatBox) return;
+
+    // Ensure chat box is empty before showing the message
+    if (chatBox.children.length > 0) return;
+
     const messageContainer = document.createElement("div");
     messageContainer.classList.add("bot-message");
-  
+    messageContainer.id = "welcome-message";
     messageContainer.innerHTML = `
         <p><strong>How can I help today?</strong></p>
         <ul id="example-prompts">
@@ -66,16 +78,36 @@ function init() {
             <li class="example">Can you explain recursion?</li>
         </ul>
     `;
-  
+
     chatBox.appendChild(messageContainer);
-  
-    // Allow users to click an example to auto-fill the input
+
+    // Allow user to click example prompts
     document.querySelectorAll(".example").forEach((item) => {
       item.addEventListener("click", function () {
         chatInput.value = this.textContent;
         chatInput.focus();
       });
     });
+  }
+
+  // Ensure function runs on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM fully loaded, checking if welcome message is needed...");
+    displayWelcomeMessage();
+  });
+
+  function startNewChat() {
+    currentConversationId = null;
+    currentSubject = null;
+    isNewChat = true;
+    localStorage.removeItem("conversationId");
+
+    const chatBox = document.getElementById("chat-box");
+    if (chatBox) {
+      chatBox.innerHTML = ""; // Clear chat box
+    }
+
+    displayWelcomeMessage(); // Show welcome message only for new chats
   }
 
   function fetchConversations() {
@@ -196,10 +228,15 @@ function init() {
     const message = chatInput.value.trim();
     if (!message) return;
 
+    // Remove welcome message if it's present
+    const welcomeMessage = document.getElementById("welcome-message");
+    if (welcomeMessage) {
+      welcomeMessage.remove();
+    }
+
     displayMessage("user", message);
     chatInput.value = "";
 
-    // If it's a new chat, create a new conversation.
     if (isNewChat) {
       if (subjectInput) {
         currentSubject = subjectInput.value.trim();
@@ -213,7 +250,7 @@ function init() {
       }
     }
 
-    // If there's no existing conversation ID, start a new chat.
+    // If there's no existing conversation ID, start a new chat
     if (!currentConversationId) {
       currentConversationId = localStorage.getItem("conversationId");
     }
@@ -225,7 +262,7 @@ function init() {
         message,
         conversation_id: currentConversationId,
         conversation_name: userLoggedIn ? currentConversationName : null,
-        subject: isNewChat ? currentSubject : null, // Only send subject if it's a new chat.
+        subject: isNewChat ? currentSubject : null, // Only send subject if it's a new chat
       }),
     })
       .then((response) => response.json())
@@ -244,7 +281,7 @@ function init() {
             document.getElementById("conversation-subject").textContent =
               "Subject: " + data.subject;
           }
-          isNewChat = false; // Reset the flag after the new chat.
+          isNewChat = false; // Reset the flag after the new chat starts
         } else if (data.error) {
           displayMessage("error", "Error: " + data.error);
         }
@@ -282,11 +319,17 @@ function init() {
         if (data.error) {
           displayMessage("error", "Error: " + data.error);
         } else {
-          chatBox.innerHTML = "";
-          data.forEach((message) => {
-            if (message.user) displayMessage("user", message.user);
-            if (message.bot) displayMessage("bot", message.bot);
-          });
+          chatBox.innerHTML = ""; // Clear chatbox before adding messages.
+
+          if (data.length === 0) {
+            // If conversation is empty, don't show welcome message.
+          } else {
+            data.forEach((message) => {
+              if (message.user) displayMessage("user", message.user);
+              if (message.bot) displayMessage("bot", message.bot);
+            });
+          }
+
           currentConversationId = conversationId;
           isNewChat = false;
           if (data.subject) {
@@ -297,18 +340,6 @@ function init() {
         }
       })
       .catch((error) => console.error("Error loading conversation:", error));
-  }
-
-  function startNewChat() {
-    currentConversationId = null;
-    currentSubject = null;
-    isNewChat = true;
-    localStorage.removeItem("conversationId");
-    if (chatBox) chatBox.innerHTML = "";
-    if (subjectInput) {
-      subjectInput.style.display = "block";
-      subjectInput.disabled = false;
-    }
   }
 
   function handleSearch() {
@@ -410,11 +441,18 @@ function init() {
       toggleAuth.textContent = "Switch to Login";
     }
   }
-
-  chatInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleChatSubmit(event);
-    }
-  });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const chatInput = document.getElementById("chat-input");
+  const chatForm = document.getElementById("chat-form");
+
+  if (chatInput && chatForm) {
+    chatInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        chatForm.dispatchEvent(new Event("submit"));
+      }
+    });
+  }
+});
