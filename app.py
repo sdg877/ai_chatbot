@@ -15,18 +15,20 @@ import certifi
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import logging
+from bson.objectid import ObjectId
 
 # Load environment variables
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
-mongo_uri = os.getenv("DATABASE_URL")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "your_default_secret_key")
 
 # Set up MongoDB connection
-client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
+client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+
 try:
     client.server_info()  # Check if the MongoDB connection is successful
     print("MongoDB connection successful")
@@ -103,112 +105,10 @@ def index():
     return render_template("index.html", username=username)
 
 
-# @app.route("/chat", methods=["POST"])
-# def chat():
-#     if chats is None:
-#         return jsonify({"error": "Database error"}), 500  # Handle MongoDB connection issues
-
-#     user_message = request.json.get("message")
-#     conversation_id = request.json.get("conversation_id")
-#     conversation_name = request.json.get("conversation_name")
-#     subject = request.json.get("subject")
-
-#     if not user_message:
-#         return jsonify({"error": "Message is required"}), 400
-
-#     # Generate a new conversation ID if one doesn't exist
-#     if conversation_id is None:
-#         conversation_id = str(uuid.uuid4())
-
-#     # If subject is None, generate it using OpenAI's GPT
-#     if subject is None:
-#         try:
-#             prompt = f"Generate a short title for this message: '{user_message}'"
-#             response = openai.chat.completions.create(
-#                 model="gpt-3.5-turbo",
-#                 messages=[{"role": "user", "content": prompt}],
-#                 max_tokens=30,
-#             )
-#             subject = response.choices[0].message.content.strip().strip('"')
-#         except Exception as e:
-#             logging.error(f"Error generating subject: {e}")
-#             subject = "New Conversation"
-
-#     # Retrieve the conversation history from MongoDB
-#     try:
-#         if current_user.is_authenticated:
-#             chat_history = list(
-#                 chats.find(
-#                     {
-#                         "conversation_id": conversation_id,
-#                         "user_id": str(current_user.id),
-#                     }
-#                 )
-#             )
-#         else:
-#             chat_history = list(chats.find({"conversation_id": conversation_id}))
-#     except Exception as e:
-#         logging.error(f"Database error retrieving chat history: {e}")
-#         return jsonify({"error": "Database error retrieving chat history"}), 500
-
-#     # Prepare messages for OpenAI
-#     messages = []
-#     for item in chat_history:
-#         if "user" in item and "bot" in item:
-#             messages.append({"role": "user", "content": item["user"]})
-#             messages.append({"role": "assistant", "content": item["bot"]})
-#         elif "user" in item:
-#             messages.append({"role": "user", "content": item["user"]})
-#         elif "bot" in item:
-#             messages.append({"role": "assistant", "content": item["bot"]})
-
-#     # Add the new user message to the conversation
-#     messages.append({"role": "user", "content": user_message})
-
-#     # Get the bot's response from OpenAI
-#     try:
-#         response = openai.chat.completions.create(
-#             model="gpt-3.5-turbo", messages=messages
-#         )
-#         bot_reply = response.choices[0].message.content
-
-#         # Store the conversation in MongoDB
-#         try:
-#             if current_user.is_authenticated:
-#                 chats.insert_one(
-#                     {
-#                         "user": user_message,
-#                         "bot": bot_reply,
-#                         "user_id": str(current_user.id),
-#                         "conversation_id": conversation_id,
-#                         "conversation_name": conversation_name,
-#                         "subject": subject,
-#                     }
-#                 )
-#             else:
-#                 chats.insert_one(
-#                     {
-#                         "user": user_message,
-#                         "bot": bot_reply,
-#                         "conversation_id": conversation_id,
-#                         "conversation_name": conversation_name,
-#                         "subject": subject,
-#                     }
-#                 )
-#         except Exception as e:
-#             logging.error(f"Database error storing chat: {e}")
-#             return jsonify({"error": "Database error storing chat"}), 500
-
-#         return jsonify(
-#             {"reply": bot_reply, "conversation_id": conversation_id, "subject": subject}
-#         )
-#     except Exception as e:
-#         logging.error(f"Error in OpenAI API call: {e}")
-#         return jsonify({"error": "OpenAI API error"}), 500
-
 @app.route("/chat", methods=["POST"])
 def chat():
-    if chats is None: return jsonify({"error": "Database error"}), 500  # MongoDB connection check
+    if chats is None:
+        return jsonify({"error": "Database error"}), 500  # MongoDB connection check
 
     user_message = request.json.get("message")
     conversation_id = request.json.get("conversation_id")
@@ -222,13 +122,12 @@ def chat():
     if conversation_id is None:
         conversation_id = str(uuid.uuid4())
 
-    # If subject is None, generate it (But avoid adding the prompt to the conversation)
+    # If subject is None, generate it (Avoid adding the prompt to the conversation)
     if subject is None:
         try:
-            prompt = f"Generate a short title for this message: '{user_message}'"
             response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": f"Generate a short title for this message: '{user_message}'"}],
                 max_tokens=30,
             )
             subject = response.choices[0].message.content.strip().strip('"')
@@ -238,22 +137,16 @@ def chat():
 
     # Retrieve the conversation history from MongoDB if `conversation_id` exists
     try:
+        query = {"conversation_id": conversation_id}
         if current_user.is_authenticated:
-            chat_history = list(
-                chats.find(
-                    {
-                        "conversation_id": conversation_id,
-                        "user_id": str(current_user.id),
-                    }
-                )
-            )
-        else:
-            chat_history = list(chats.find({"conversation_id": conversation_id}))
+            query["user_id"] = str(current_user.id)
+
+        chat_history = list(chats.find(query))
     except Exception as e:
         logging.error(f"Database error retrieving chat history: {e}")
         return jsonify({"error": "Database error retrieving chat history"}), 500
 
-    # Prepare chat history (do not include subject generation prompt)
+    # Prepare chat history for OpenAI API
     messages = []
     for item in chat_history:
         if "user" in item and "bot" in item:
@@ -274,29 +167,20 @@ def chat():
         )
         bot_reply = response.choices[0].message.content
 
-        # Store the conversation in MongoDB (do not store the prompt)
+        # Store the conversation in MongoDB
+        conversation_data = {
+            "user": user_message,
+            "bot": bot_reply,
+            "conversation_id": conversation_id,
+            "conversation_name": conversation_name,
+            "subject": subject,
+        }
+
+        if current_user.is_authenticated:
+            conversation_data["user_id"] = str(current_user.id)
+
         try:
-            if current_user.is_authenticated:
-                chats.insert_one(
-                    {
-                        "user": user_message,
-                        "bot": bot_reply,
-                        "user_id": str(current_user.id),
-                        "conversation_id": conversation_id,
-                        "conversation_name": conversation_name,
-                        "subject": subject,
-                    }
-                )
-            else:
-                chats.insert_one(
-                    {
-                        "user": user_message,
-                        "bot": bot_reply,
-                        "conversation_id": conversation_id,
-                        "conversation_name": conversation_name,
-                        "subject": subject,
-                    }
-                )
+            chats.insert_one(conversation_data)
         except Exception as e:
             logging.error(f"Database error storing chat: {e}")
             return jsonify({"error": "Database error storing chat"}), 500
@@ -307,7 +191,6 @@ def chat():
     except Exception as e:
         logging.error(f"Error in OpenAI API call: {e}")
         return jsonify({"error": "OpenAI API error"}), 500
-
 
 
 @app.route("/conversations", methods=["GET"])
