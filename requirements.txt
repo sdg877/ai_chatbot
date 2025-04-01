@@ -1,3 +1,7 @@
 Flask
+flask_login
 openai
 python-dotenv
+pymongo
+certifi
+werkzeug
