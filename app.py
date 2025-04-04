@@ -53,11 +53,10 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = users_collection.find_one({"_id": user_id})
+    user_data = users_collection.find_one({"_id": user_id}) 
     if user_data:
         return User(user_data)
     return None
-
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -71,11 +70,14 @@ def register():
     # Hash the password and create a new user
     password_hash = generate_password_hash(password)
     user_id = str(uuid.uuid4())
-    users_collection.insert_one(
-        {"_id": user_id, "username": username, "password": password_hash}
-    )
+    user_data = {"_id": user_id, "username": username, "password": password_hash}
+    users_collection.insert_one(user_data)
 
-    return jsonify({"message": "User registered successfully"})
+    # Log the user in right after registration
+    user = User(user_data)
+    login_user(user)
+
+    return jsonify({"message": "User registered and logged in successfully"})
 
 
 @app.route("/login", methods=["GET", "POST"])
