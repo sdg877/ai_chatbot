@@ -102,13 +102,13 @@ h5 {
   background-color: #7b68ee;
   color: white;
   align-self: flex-start;
-  margin-left: 10px;
+  margin-left: 20px;
 }
 
 .message.bot {
   background-color: #fff0f5;
   align-self: flex-end;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 
 .chat-form {
