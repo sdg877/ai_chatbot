@@ -112,7 +112,8 @@ def index():
 @app.route("/chat", methods=["POST"])
 def chat():
     if chats is None:
-        return jsonify({"error": "Database error"}), 500  # MongoDB connection check
+        logging.error("Database collection 'chats' is not available.")
+        return jsonify({"error": "Database connection error"}), 500
 
     user_message = request.json.get("message")
     conversation_id = request.json.get("conversation_id")
@@ -122,44 +123,62 @@ def chat():
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
+    is_new_conversation = False
     if conversation_id is None:
+        is_new_conversation = True
         conversation_id = str(uuid.uuid4())
 
-    if subject is None:
+    if is_new_conversation and subject is None:
         try:
+
+            prompt = f"Generate a very short (3-5 word) title for this user message: '{user_message}'"
             response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"Generate a short title for this message: '{user_message}'",
-                    }
-                ],
-                max_tokens=30,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=15,
+                temperature=0.5,
             )
-            subject = response.choices[0].message.content.strip().strip('"')
+            subject = response.choices[0].message.content.strip().strip("'\".")
         except Exception as e:
-            logging.error(f"Error generating subject: {e}")
-            subject = "New Conversation"
+            logging.error(f"Error generating subject using OpenAI: {e}")
+            subject = "New Chat"
+    elif not is_new_conversation and subject is None:
+        pass
 
+    chat_history = []
     try:
         query = {"conversation_id": conversation_id}
         if current_user.is_authenticated:
             query["user_id"] = str(current_user.id)
-
         chat_history = list(chats.find(query))
+        if not is_new_conversation and subject is None and chat_history:
+            first_message = chat_history[0]
+            subject = first_message.get("subject", "Chat History")
+
     except Exception as e:
-        logging.error(f"Database error retrieving chat history: {e}")
+        logging.error(
+            f"Database error retrieving chat history for {conversation_id}: {e}"
+        )
         return jsonify({"error": "Database error retrieving chat history"}), 500
 
     messages = []
+
+    # ** ADD THE SYSTEM MESSAGE FOR UK CONTEXT / BRITISH ENGLISH / METRICS **
+    messages.append(
+        {
+            "role": "system",
+            "content": "You are a helpful assistant interacting with a user based in the UK (specifically Mitcham, England). Please ensure all your responses strictly adhere to UK conventions: \
+                    1. Language: Use British English spelling, grammar, and vocabulary (e.g., colour, centre, realise, organise, tyre, programme, lift, flat, motorway, postcode). \
+                    2. Units: Primarily use metric units (e.g., km, m, cm, kg, g, litres, °C). Where appropriate for common UK usage, imperial units like miles (for road distances/speed), pints (for beer/milk), and feet/inches (for height) may be used or mentioned alongside metric. Avoid Fahrenheit, US gallons, lbs/oz unless specifically requested. \
+                    3. Formatting: Use UK date format (DD/MM/YYYY). Use £ (GBP Sterling) for currency. \
+                    4. Context: Frame examples, cultural references, and place names with a UK audience in mind. Assume local context where appropriate (e.g., knowledge of common UK retailers, institutions, locations relevant to South London/Surrey).",
+        }
+    )
+
     for item in chat_history:
-        if "user" in item and "bot" in item:
+        if item.get("user"):
             messages.append({"role": "user", "content": item["user"]})
-            messages.append({"role": "assistant", "content": item["bot"]})
-        elif "user" in item:
-            messages.append({"role": "user", "content": item["user"]})
-        elif "bot" in item:
+        if item.get("bot"):
             messages.append({"role": "assistant", "content": item["bot"]})
 
     messages.append({"role": "user", "content": user_message})
@@ -170,29 +189,43 @@ def chat():
         )
         bot_reply = response.choices[0].message.content
 
+    except Exception as e:
+        logging.error(f"Error calling OpenAI API: {e}")
+        return (
+            jsonify(
+                {
+                    "error": "AI assistant is currently unavailable. Please try again later."
+                }
+            ),
+            500,
+        )
+
+    try:
         conversation_data = {
+            "conversation_id": conversation_id,
             "user": user_message,
             "bot": bot_reply,
-            "conversation_id": conversation_id,
-            "conversation_name": conversation_name,
             "subject": subject,
         }
 
         if current_user.is_authenticated:
             conversation_data["user_id"] = str(current_user.id)
+        if conversation_name:
+            conversation_data["conversation_name"] = conversation_name
 
-        try:
-            chats.insert_one(conversation_data)
-        except Exception as e:
-            logging.error(f"Database error storing chat: {e}")
-            return jsonify({"error": "Database error storing chat"}), 500
+        chats.insert_one(conversation_data)
 
-        return jsonify(
-            {"reply": bot_reply, "conversation_id": conversation_id, "subject": subject}
-        )
     except Exception as e:
-        logging.error(f"Error in OpenAI API call: {e}")
-        return jsonify({"error": "OpenAI API error"}), 500
+        logging.error(
+            f"Database error storing chat interaction for {conversation_id}: {e}"
+        )
+
+    response_data = {
+        "reply": bot_reply,
+        "conversation_id": conversation_id,
+        "subject": subject,
+    }
+    return jsonify(response_data)
 
 
 @app.route("/conversations", methods=["GET"])
