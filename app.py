@@ -17,20 +17,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import logging
 from bson.objectid import ObjectId
 
-# Load environment variables
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 
-# Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "your_default_secret_key")
 
-# Set up MongoDB connection
+
 client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 
 try:
-    client.server_info()  # Check if the MongoDB connection is successful
+    client.server_info()
     print("MongoDB connection successful")
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
@@ -38,7 +36,6 @@ db = client.chat_history
 chats = db.chats
 users_collection = db.users
 
-# Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -53,27 +50,25 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = users_collection.find_one({"_id": user_id}) 
+    user_data = users_collection.find_one({"_id": user_id})
     if user_data:
         return User(user_data)
     return None
+
 
 @app.route("/register", methods=["POST"])
 def register():
     username = request.form.get("username")
     password = request.form.get("password")
 
-    # Check if the username already exists in the database
     if users_collection.find_one({"username": username}):
         return jsonify({"error": "Username already exists"}), 400
 
-    # Hash the password and create a new user
     password_hash = generate_password_hash(password)
     user_id = str(uuid.uuid4())
     user_data = {"_id": user_id, "username": username, "password": password_hash}
     users_collection.insert_one(user_data)
 
-    # Log the user in right after registration
     user = User(user_data)
     login_user(user)
 
@@ -86,11 +81,18 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         user_data = users_collection.find_one({"username": username})
+
         if user_data and check_password_hash(user_data["password"], password):
             user = User(user_data)
             login_user(user)
-            return jsonify({"message": "Logged in successfully"})
+
+            if current_user.is_authenticated:
+                return jsonify({"message": "Logged in successfully"})
+            else:
+                return jsonify({"error": "Authentication failed"}), 401
+
         return jsonify({"error": "Invalid username or password"}), 401
+
     return render_template("login.html")
 
 
@@ -118,18 +120,21 @@ def chat():
     subject = request.json.get("subject")
 
     if not user_message:
-        return jsonify({"error": "Message is required"}), 400  # Ensure a message is provided
+        return jsonify({"error": "Message is required"}), 400
 
-    # Generate a new conversation ID if one doesn't exist
     if conversation_id is None:
         conversation_id = str(uuid.uuid4())
 
-    # If subject is None, generate it (Avoid adding the prompt to the conversation)
     if subject is None:
         try:
             response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": f"Generate a short title for this message: '{user_message}'"}],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"Generate a short title for this message: '{user_message}'",
+                    }
+                ],
                 max_tokens=30,
             )
             subject = response.choices[0].message.content.strip().strip('"')
@@ -137,7 +142,6 @@ def chat():
             logging.error(f"Error generating subject: {e}")
             subject = "New Conversation"
 
-    # Retrieve the conversation history from MongoDB if `conversation_id` exists
     try:
         query = {"conversation_id": conversation_id}
         if current_user.is_authenticated:
@@ -148,7 +152,6 @@ def chat():
         logging.error(f"Database error retrieving chat history: {e}")
         return jsonify({"error": "Database error retrieving chat history"}), 500
 
-    # Prepare chat history for OpenAI API
     messages = []
     for item in chat_history:
         if "user" in item and "bot" in item:
@@ -159,17 +162,14 @@ def chat():
         elif "bot" in item:
             messages.append({"role": "assistant", "content": item["bot"]})
 
-    # Add the new user message to the conversation
     messages.append({"role": "user", "content": user_message})
 
     try:
-        # Call the OpenAI API to get the bot's response
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo", messages=messages
         )
         bot_reply = response.choices[0].message.content
 
-        # Store the conversation in MongoDB
         conversation_data = {
             "user": user_message,
             "bot": bot_reply,
