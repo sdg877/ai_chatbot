@@ -227,38 +227,138 @@ def chat():
     }
     return jsonify(response_data)
 
-
 @app.route("/conversations", methods=["GET"])
 @login_required
 def conversations():
     try:
-        conversations = list(
+        user_id_str = str(current_user.id) # Get user ID once
+        print(f"--- Fetching conversations for user_id: {user_id_str} ---") # Log user ID
+
+        conversations_pipeline = list(
             chats.aggregate(
                 [
-                    {"$match": {"user_id": str(current_user.id)}},
+                    # Stage 1: Match documents for the logged-in user
+                    {"$match": {"user_id": user_id_str}},
+
+                    # **** ADD THIS STAGE for consistent ordering ****
                     {
+                       # Stage 2: Sort by _id BEFORE grouping
+                       # Ensures $first consistently picks from the earliest message
+                       '$sort': { '_id': 1 } # 1 for ascending order
+                    },
+                    # ***********************************************
+
+                    {
+                        # Stage 3: Group by conversation_id
                         "$group": {
-                            "_id": "$conversation_id",
-                            "name": {"$first": "$conversation_name"},
-                            "subject": {"$first": "$subject"},
+                            "_id": "$conversation_id", # Group by the conversation ID
+                            "name": {"$first": "$conversation_name"}, # Get name from the first message
+                            "subject": {"$first": "$subject"},        # Get subject from the first message
                         }
                     },
+                    # Optional: Sort the final list of conversations themselves
+                    {
+                        '$sort': {'_id': 1} # Sort conversations chronologically by their ID
+                    }
                 ]
             )
         )
-        return jsonify(
-            [
-                {
-                    "conversation_id": c["_id"],
-                    "conversation_name": c["name"],
-                    "subject": c["subject"] if c["subject"] else c["_id"],
-                }
-                for c in conversations
-            ]
-        )
+        # --- Print the raw result from aggregation ---
+        print(f"Raw aggregation result: {conversations_pipeline}")
+        # -------------------------------------------
+
+        formatted_conversations = [
+            {
+                "conversation_id": c["_id"],
+                "conversation_name": c.get("name"), # Keep name separate
+                 # Use the specific name if set, otherwise the subject, otherwise fallback
+                "subject": c.get("name") or c.get("subject") or f"Chat {c['_id'][:8]}...",
+            }
+            for c in conversations_pipeline
+        ]
+        # --- Print the final list being sent ---
+        print(f"Formatted conversations being sent: {formatted_conversations}")
+        # ---------------------------------------
+
+        return jsonify(formatted_conversations)
     except Exception as e:
-        logging.error(f"Error fetching conversations: {e}")
+        # Use variable defined outside try block if possible or provide default
+        user_identifier = getattr(current_user, 'id', 'Unknown User')
+        logging.error(f"Error fetching conversations for user {user_identifier}: {e}")
         return jsonify({"error": "Failed to fetch conversations"}), 500
+
+
+
+# @app.route("/conversations", methods=["GET"])
+# @login_required
+# def conversations():
+#     try:
+#         user_id_str = str(current_user.id) # Get user ID once
+#         print(f"--- Fetching conversations for user_id: {user_id_str} ---") # Log user ID
+
+#         conversations_pipeline = list(
+#             chats.aggregate(
+#                 [
+#                     {"$match": {"user_id": user_id_str}}, # Use the variable
+#                     # {"$sort": {"timestamp": -1}}, # Add if you have timestamps
+#                     {
+#                         "$group": {
+#                             "_id": "$conversation_id",
+#                             "name": {"$first": "$conversation_name"},
+#                             "subject": {"$first": "$subject"},
+#                         }
+#                     },
+#                 ]
+#             )
+#         )
+#         # --- Print the raw result from aggregation ---
+#         print(f"Raw aggregation result: {conversations_pipeline}")
+#         # -------------------------------------------
+
+#         formatted_conversations = [
+#             {
+#                 "conversation_id": c["_id"],
+#                 "conversation_name": c.get("name"),
+#                 "subject": c.get("subject") or c.get("name") or f"Chat {c['_id'][:8]}...", # Adjusted fallback
+#             }
+#             for c in conversations_pipeline
+#         ]
+#         # --- Print the final list being sent ---
+#         print(f"Formatted conversations being sent: {formatted_conversations}")
+#         # ---------------------------------------
+
+#         return jsonify(formatted_conversations)
+#     except Exception as e:
+#         logging.error(f"Error fetching conversations for user {user_id_str}: {e}") # Use variable
+#         return jsonify({"error": "Failed to fetch conversations"}), 500
+#     try:
+#         conversations = list(
+#             chats.aggregate(
+#                 [
+#                     {"$match": {"user_id": str(current_user.id)}},
+#                     {
+#                         "$group": {
+#                             "_id": "$conversation_id",
+#                             "name": {"$first": "$conversation_name"},
+#                             "subject": {"$first": "$subject"},
+#                         }
+#                     },
+#                 ]
+#             )
+#         )
+#         return jsonify(
+#             [
+#                 {
+#                     "conversation_id": c["_id"],
+#                     "conversation_name": c["name"],
+#                     "subject": c["subject"] if c["subject"] else c["_id"],
+#                 }
+#                 for c in conversations
+#             ]
+#         )
+#     except Exception as e:
+#         logging.error(f"Error fetching conversations: {e}")
+#         return jsonify({"error": "Failed to fetch conversations"}), 500
 
 
 @app.route("/search", methods=["POST"])
