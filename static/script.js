@@ -78,6 +78,28 @@ function init() {
     });
   }
 
+  function sendMessage(userMessage) {
+    fetch("/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        conversation_id: conversationId,
+      }),
+    })
+    .then(response => response.json()) 
+    .then(data => {
+      if (!conversationId) {
+        conversationId = data.conversation_id; 
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
   function handleChatSubmit(event) {
     event.preventDefault();
     const message = chatInput.value.trim();
@@ -277,49 +299,70 @@ function init() {
       body: JSON.stringify({ conversation_id: conversationId }),
     })
       .then((response) => response.json())
-      .then((data) => {
-        if (!chatBox) return;
-        chatBox.innerHTML = "";
-
-        if (data.error) {
-          displayMessage("error", "Error loading conversation: " + data.error);
-        } else {
-          if (Array.isArray(data.messages) && data.messages.length > 0) {
-            data.messages.forEach((message) => {
-              if (message.user) displayMessage("user", message.user);
-              if (message.bot) displayMessage("bot", message.bot);
-            });
-          } else {
-            // Handle empty conversation - maybe display a placeholder or do nothing
-            // console.log("Loaded conversation is empty.");
-            // Don't display welcome message here, it's loading an existing (empty) chat
-          }
+      .then((messages) => {
+        const chatBox = document.getElementById("chat-box");
+        if (chatBox) {
+          chatBox.innerHTML = ""; // Clear the current chat
+  
+          messages.forEach((msg) => {
+            if (msg.user) {
+              displayMessage("user", msg.user);
+            }
+            if (msg.bot) {
+              displayMessage("bot", msg.bot);
+            }
+          });
+          chatBox.scrollTop = chatBox.scrollHeight;
 
           currentConversationId = conversationId;
-          localStorage.setItem("conversationId", conversationId);
-          isNewChat = false;
-          hasDisplayedWelcomeMessage = true;
-
-          currentSubject = data.subject || null;
-          const subjectDisplay = document.getElementById(
-            "conversation-subject"
-          );
-          if (subjectDisplay) {
-            subjectDisplay.textContent = currentSubject
-              ? "Subject: " + currentSubject
-              : "";
-          }
-
-          if (subjectInput) {
-            subjectInput.value = currentSubject || "";
-          }
+  
+          fetch("/conversations") 
+            .then((response) => response.json())
+            .then((conversations) => {
+              const currentConv = conversations.find(
+                (conv) => conv.conversation_id === conversationId
+              );
+              if (currentConv && currentConv.subject) {
+                currentSubject = currentConv.subject;
+                const subjectDisplay = document.getElementById(
+                  "conversation-subject"
+                );
+                if (subjectDisplay) {
+                  subjectDisplay.textContent = "Subject: " + currentSubject;
+                }
+              } else if (currentConv && currentConv.conversation_name) {
+                currentSubject = currentConv.conversation_name;
+                const subjectDisplay = document.getElementById(
+                  "conversation-subject"
+                );
+                if (subjectDisplay) {
+                  subjectDisplay.textContent = "Subject: " + currentSubject;
+                } else {
+                  currentSubject = `Chat ${conversationId.substring(0, 8)}...`;
+                  const subjectDisplay = document.getElementById(
+                    "conversation-subject"
+                  );
+                  if (subjectDisplay) {
+                    subjectDisplay.textContent = "Subject: " + currentSubject;
+                  }
+                }
+              } else {
+                currentSubject = `Chat ${conversationId.substring(0, 8)}...`;
+                const subjectDisplay = document.getElementById(
+                  "conversation-subject"
+                );
+                if (subjectDisplay) {
+                  subjectDisplay.textContent = "Subject: " + currentSubject;
+                }
+              }
+            })
+            .catch((error) =>
+              console.error("Error fetching conversations after load:", error)
+            );
         }
-        chatBox.scrollTop = chatBox.scrollHeight;
+        isNewChat = false; 
       })
-      .catch((error) => {
-        console.error("Error loading conversation:", error);
-        displayMessage("error", "Failed to load conversation.");
-      });
+      .catch((error) => console.error("Error loading conversation:", error));
   }
 
   function handleSearch() {
