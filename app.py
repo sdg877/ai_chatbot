@@ -126,6 +126,7 @@ def chat():
     if conversation_id is None:
         is_new_conversation = True
         conversation_id = str(uuid.uuid4())
+        
 
     if is_new_conversation:
         if subject is None:
