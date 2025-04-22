@@ -24,7 +24,6 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "your_default_secret_key")
 
-
 client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 
 try:
@@ -128,22 +127,25 @@ def chat():
         is_new_conversation = True
         conversation_id = str(uuid.uuid4())
 
-    if is_new_conversation and subject is None:
-        try:
-
-            prompt = f"Generate a very short (3-5 word) title for this user message: '{user_message}'"
-            response = openai.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=15,
-                temperature=0.5,
-            )
-            subject = response.choices[0].message.content.strip().strip("'\".")
-        except Exception as e:
-            logging.error(f"Error generating subject using OpenAI: {e}")
-            subject = "New Chat"
-    elif not is_new_conversation and subject is None:
-        pass
+    if is_new_conversation:
+        if subject is None:
+            try:
+                prompt = f"Generate a very short (3-5 word) title for this user message: '{user_message}'"
+                response = openai.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=15,
+                    temperature=0.5,
+                )
+                subject = response.choices[0].message.content.strip().strip("'\".")
+                logging.debug(f"Generated new subject: {subject}")
+            except Exception as e:
+                logging.error(f"Error generating subject using OpenAI: {e}")
+                subject = "New Chat"
+        else:
+            logging.debug(f"Using provided subject: {subject}")
+    else:
+        logging.debug(f"Existing conversation. Subject: {subject}")
 
     chat_history = []
     try:
@@ -151,9 +153,11 @@ def chat():
         if current_user.is_authenticated:
             query["user_id"] = str(current_user.id)
         chat_history = list(chats.find(query))
+
         if not is_new_conversation and subject is None and chat_history:
             first_message = chat_history[0]
             subject = first_message.get("subject", "Chat History")
+            logging.debug(f"Fetched subject from chat history: {subject}")
 
     except Exception as e:
         logging.error(
@@ -162,8 +166,6 @@ def chat():
         return jsonify({"error": "Database error retrieving chat history"}), 500
 
     messages = []
-
-    # ** ADD THE SYSTEM MESSAGE FOR UK CONTEXT / BRITISH ENGLISH / METRICS **
     messages.append(
         {
             "role": "system",
@@ -188,6 +190,7 @@ def chat():
             model="gpt-3.5-turbo", messages=messages
         )
         bot_reply = response.choices[0].message.content
+        logging.debug(f"Received bot reply: {bot_reply}")
 
     except Exception as e:
         logging.error(f"Error calling OpenAI API: {e}")
@@ -207,6 +210,7 @@ def chat():
             "bot": bot_reply,
             "subject": subject,
         }
+        logging.debug(f"Storing conversation with subject: {subject}")
 
         if current_user.is_authenticated:
             conversation_data["user_id"] = str(current_user.id)
@@ -227,138 +231,46 @@ def chat():
     }
     return jsonify(response_data)
 
+
 @app.route("/conversations", methods=["GET"])
 @login_required
 def conversations():
     try:
-        user_id_str = str(current_user.id) # Get user ID once
-        print(f"--- Fetching conversations for user_id: {user_id_str} ---") # Log user ID
+        user_id_str = str(current_user.id)
 
         conversations_pipeline = list(
             chats.aggregate(
                 [
-                    # Stage 1: Match documents for the logged-in user
                     {"$match": {"user_id": user_id_str}},
-
-                    # **** ADD THIS STAGE for consistent ordering ****
+                    {"$sort": {"_id": 1}},
                     {
-                       # Stage 2: Sort by _id BEFORE grouping
-                       # Ensures $first consistently picks from the earliest message
-                       '$sort': { '_id': 1 } # 1 for ascending order
-                    },
-                    # ***********************************************
-
-                    {
-                        # Stage 3: Group by conversation_id
                         "$group": {
-                            "_id": "$conversation_id", # Group by the conversation ID
-                            "name": {"$first": "$conversation_name"}, # Get name from the first message
-                            "subject": {"$first": "$subject"},        # Get subject from the first message
+                            "_id": "$conversation_id",
+                            "name": {"$first": "$conversation_name"},
+                            "subject": {"$first": "$subject"},
                         }
                     },
-                    # Optional: Sort the final list of conversations themselves
-                    {
-                        '$sort': {'_id': 1} # Sort conversations chronologically by their ID
-                    }
+                    {"$sort": {"_id": 1}},
                 ]
             )
         )
-        # --- Print the raw result from aggregation ---
-        print(f"Raw aggregation result: {conversations_pipeline}")
-        # -------------------------------------------
 
         formatted_conversations = [
             {
                 "conversation_id": c["_id"],
-                "conversation_name": c.get("name"), # Keep name separate
-                 # Use the specific name if set, otherwise the subject, otherwise fallback
-                "subject": c.get("name") or c.get("subject") or f"Chat {c['_id'][:8]}...",
+                "conversation_name": c.get("name"),
+                "subject": c.get("name")
+                or c.get("subject")
+                or f"Chat {c['_id'][:8]}...",
             }
             for c in conversations_pipeline
         ]
-        # --- Print the final list being sent ---
-        print(f"Formatted conversations being sent: {formatted_conversations}")
-        # ---------------------------------------
 
         return jsonify(formatted_conversations)
     except Exception as e:
-        # Use variable defined outside try block if possible or provide default
-        user_identifier = getattr(current_user, 'id', 'Unknown User')
+        user_identifier = getattr(current_user, "id", "Unknown User")
         logging.error(f"Error fetching conversations for user {user_identifier}: {e}")
         return jsonify({"error": "Failed to fetch conversations"}), 500
-
-
-
-# @app.route("/conversations", methods=["GET"])
-# @login_required
-# def conversations():
-#     try:
-#         user_id_str = str(current_user.id) # Get user ID once
-#         print(f"--- Fetching conversations for user_id: {user_id_str} ---") # Log user ID
-
-#         conversations_pipeline = list(
-#             chats.aggregate(
-#                 [
-#                     {"$match": {"user_id": user_id_str}}, # Use the variable
-#                     # {"$sort": {"timestamp": -1}}, # Add if you have timestamps
-#                     {
-#                         "$group": {
-#                             "_id": "$conversation_id",
-#                             "name": {"$first": "$conversation_name"},
-#                             "subject": {"$first": "$subject"},
-#                         }
-#                     },
-#                 ]
-#             )
-#         )
-#         # --- Print the raw result from aggregation ---
-#         print(f"Raw aggregation result: {conversations_pipeline}")
-#         # -------------------------------------------
-
-#         formatted_conversations = [
-#             {
-#                 "conversation_id": c["_id"],
-#                 "conversation_name": c.get("name"),
-#                 "subject": c.get("subject") or c.get("name") or f"Chat {c['_id'][:8]}...", # Adjusted fallback
-#             }
-#             for c in conversations_pipeline
-#         ]
-#         # --- Print the final list being sent ---
-#         print(f"Formatted conversations being sent: {formatted_conversations}")
-#         # ---------------------------------------
-
-#         return jsonify(formatted_conversations)
-#     except Exception as e:
-#         logging.error(f"Error fetching conversations for user {user_id_str}: {e}") # Use variable
-#         return jsonify({"error": "Failed to fetch conversations"}), 500
-#     try:
-#         conversations = list(
-#             chats.aggregate(
-#                 [
-#                     {"$match": {"user_id": str(current_user.id)}},
-#                     {
-#                         "$group": {
-#                             "_id": "$conversation_id",
-#                             "name": {"$first": "$conversation_name"},
-#                             "subject": {"$first": "$subject"},
-#                         }
-#                     },
-#                 ]
-#             )
-#         )
-#         return jsonify(
-#             [
-#                 {
-#                     "conversation_id": c["_id"],
-#                     "conversation_name": c["name"],
-#                     "subject": c["subject"] if c["subject"] else c["_id"],
-#                 }
-#                 for c in conversations
-#             ]
-#         )
-#     except Exception as e:
-#         logging.error(f"Error fetching conversations: {e}")
-#         return jsonify({"error": "Failed to fetch conversations"}), 500
 
 
 @app.route("/search", methods=["POST"])
