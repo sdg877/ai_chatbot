@@ -186,88 +186,339 @@ function init() {
     hasDisplayedWelcomeMessage = true;
   }
 
+  // function fetchConversations() {
+  //   const conversationsListContent = document.getElementById(
+  //     "conversations-list-content"
+  //   );
+  //   if (!conversationsListContent) return;
+
+  //   if (!userLoggedIn) {
+  //     conversationsListContent.innerHTML =
+  //       "<p>Please log in to see conversations.</p>";
+  //     return;
+  //   }
+
+  //   fetch("/conversations")
+  //     .then((response) => response.json())
+  //     .then((conversations) => {
+  //       conversationsListContent.innerHTML = "";
+
+  //       if (!conversations || conversations.length === 0) {
+  //         conversationsListContent.innerHTML = "<p>No conversations found.</p>";
+  //         return;
+  //       }
+
+  //       conversations.forEach((conversation) => {
+  //         const conversationDiv = document.createElement("div");
+  //         conversationDiv.classList.add("conversation-item");
+  //         conversationDiv.dataset.conversationId = conversation.conversation_id;
+
+  //         const contentContainer = document.createElement("div");
+  //         contentContainer.style.display = "flex";
+  //         contentContainer.style.alignItems = "center";
+  //         contentContainer.style.justifyContent = "space-between";
+
+  //         const textDiv = document.createElement("div");
+  //         textDiv.textContent =
+  //           conversation.subject ||
+  //           conversation.conversation_name ||
+  //           `Conversation ${conversation.conversation_id.substring(0, 8)}`;
+  //         textDiv.style.flexGrow = "1";
+  //         textDiv.style.marginRight = "10px";
+  //         textDiv.style.overflow = "hidden";
+  //         textDiv.style.textOverflow = "ellipsis";
+  //         textDiv.style.whiteSpace = "nowrap";
+
+  //         contentContainer.appendChild(textDiv);
+
+  //         const buttonsContainer = document.createElement("div");
+  //         buttonsContainer.style.display = "flex";
+  //         buttonsContainer.style.flexShrink = "0";
+
+  //         const deleteButton = document.createElement("span");
+  //         deleteButton.textContent = "✖";
+  //         deleteButton.classList.add("delete-conversation");
+  //         deleteButton.style.cursor = "pointer";
+  //         deleteButton.style.marginLeft = "5px";
+  //         deleteButton.title = "Delete Conversation";
+  //         deleteButton.dataset.conversationId = conversation.conversation_id;
+  //         deleteButton.addEventListener("click", (event) => {
+  //           event.stopPropagation();
+  //           if (confirm("Are you sure you want to delete this conversation?")) {
+  //             deleteConversation(conversation.conversation_id);
+  //           }
+  //         });
+
+  //         buttonsContainer.appendChild(deleteButton);
+  //         contentContainer.appendChild(buttonsContainer);
+  //         conversationDiv.appendChild(contentContainer);
+
+  //         conversationDiv.addEventListener("click", () =>
+  //           loadConversation(conversation.conversation_id)
+  //         );
+
+  //         conversationsListContent.appendChild(conversationDiv);
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching conversations:", error);
+  //       if (conversationsListContent) {
+  //         conversationsListContent.innerHTML =
+  //           "<p>Error loading conversations.</p>";
+  //       }
+  //     });
+  // }
+
   function fetchConversations() {
     const conversationsListContent = document.getElementById(
-      "conversations-list-content"
+        "conversations-list-content"
     );
     if (!conversationsListContent) return;
 
     if (!userLoggedIn) {
-      conversationsListContent.innerHTML =
-        "<p>Please log in to see conversations.</p>";
-      return;
+        conversationsListContent.innerHTML =
+            "<p>Please log in to see conversations.</p>";
+        return;
     }
 
     fetch("/conversations")
-      .then((response) => response.json())
-      .then((conversations) => {
-        conversationsListContent.innerHTML = "";
+        .then((response) => response.json())
+        .then((conversations) => {
+            conversationsListContent.innerHTML = "";
 
-        if (!conversations || conversations.length === 0) {
-          conversationsListContent.innerHTML = "<p>No conversations found.</p>";
-          return;
-        }
-
-        conversations.forEach((conversation) => {
-          const conversationDiv = document.createElement("div");
-          conversationDiv.classList.add("conversation-item");
-          conversationDiv.dataset.conversationId = conversation.conversation_id;
-
-          const contentContainer = document.createElement("div");
-          contentContainer.style.display = "flex";
-          contentContainer.style.alignItems = "center";
-          contentContainer.style.justifyContent = "space-between";
-
-          const textDiv = document.createElement("div");
-          textDiv.textContent =
-            conversation.subject ||
-            conversation.conversation_name ||
-            `Conversation ${conversation.conversation_id.substring(0, 8)}`;
-          textDiv.style.flexGrow = "1";
-          textDiv.style.marginRight = "10px";
-          textDiv.style.overflow = "hidden";
-          textDiv.style.textOverflow = "ellipsis";
-          textDiv.style.whiteSpace = "nowrap";
-
-          contentContainer.appendChild(textDiv);
-
-          const buttonsContainer = document.createElement("div");
-          buttonsContainer.style.display = "flex";
-          buttonsContainer.style.flexShrink = "0";
-
-          const deleteButton = document.createElement("span");
-          deleteButton.textContent = "✖";
-          deleteButton.classList.add("delete-conversation");
-          deleteButton.style.cursor = "pointer";
-          deleteButton.style.marginLeft = "5px";
-          deleteButton.title = "Delete Conversation";
-          deleteButton.dataset.conversationId = conversation.conversation_id;
-          deleteButton.addEventListener("click", (event) => {
-            event.stopPropagation();
-            if (confirm("Are you sure you want to delete this conversation?")) {
-              deleteConversation(conversation.conversation_id);
+            if (!conversations || conversations.length === 0) {
+                conversationsListContent.innerHTML = "<p>No conversations found.</p>";
+                return;
             }
-          });
 
-          buttonsContainer.appendChild(deleteButton);
-          contentContainer.appendChild(buttonsContainer);
-          conversationDiv.appendChild(contentContainer);
+            conversations.forEach((conversation) => {
+                const conversationDiv = document.createElement("div");
+                conversationDiv.classList.add("conversation-item");
+                conversationDiv.dataset.conversationId = conversation.conversation_id;
 
-          conversationDiv.addEventListener("click", () =>
-            loadConversation(conversation.conversation_id)
-          );
+                const contentContainer = document.createElement("div");
+                contentContainer.style.display = "flex";
+                contentContainer.style.alignItems = "center";
+                contentContainer.style.justifyContent = "space-between";
 
-          conversationsListContent.appendChild(conversationDiv);
+                const textDiv = document.createElement("div");
+                textDiv.textContent =
+                    conversation.subject ||
+                    conversation.conversation_name ||
+                    `Chat ${conversation.conversation_id.substring(0, 8)}`;
+                textDiv.style.flexGrow = "1";
+                textDiv.style.marginRight = "10px";
+                textDiv.style.overflow = "hidden";
+                textDiv.style.textOverflow = "ellipsis";
+                textDiv.style.whiteSpace = "nowrap";
+                contentContainer.appendChild(textDiv);
+
+                const buttonsContainer = document.createElement("div");
+                buttonsContainer.style.display = "flex";
+                buttonsContainer.style.flexShrink = "0";
+
+                const editButton = document.createElement("span");
+                editButton.textContent = "✏️"; 
+                editButton.classList.add("edit-conversation-button");
+                editButton.style.cursor = "pointer";
+                editButton.style.marginLeft = "5px";
+                editButton.title = "Edit Subject";
+                editButton.dataset.conversationId = conversation.conversation_id;
+                editButton.addEventListener("click", (event) => {
+                    event.stopPropagation(); 
+                    startEditSubject(conversationDiv, conversation.conversation_id, textDiv.textContent);
+                });
+                buttonsContainer.appendChild(editButton);
+
+                const deleteButton = document.createElement("span");
+                deleteButton.textContent = "✖";
+                deleteButton.classList.add("delete-conversation");
+                deleteButton.style.cursor = "pointer";
+                deleteButton.style.marginLeft = "5px";
+                deleteButton.title = "Delete Conversation";
+                deleteButton.dataset.conversationId = conversation.conversation_id;
+                deleteButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    if (confirm("Are you sure you want to delete this conversation?")) {
+                        deleteConversation(conversation.conversation_id);
+                    }
+                });
+                buttonsContainer.appendChild(deleteButton);
+
+                contentContainer.appendChild(buttonsContainer);
+                conversationDiv.appendChild(contentContainer);
+
+                conversationDiv.addEventListener("click", () =>
+                    loadConversation(conversation.conversation_id)
+                );
+
+                conversationsListContent.appendChild(conversationDiv);
+            });
+        })
+        .catch((error) => {
+            console.error("Error fetching conversations:", error);
+            if (conversationsListContent) {
+                conversationsListContent.innerHTML =
+                    "<p>Error loading conversations.</p>";
+            }
         });
-      })
-      .catch((error) => {
-        console.error("Error fetching conversations:", error);
-        if (conversationsListContent) {
-          conversationsListContent.innerHTML =
-            "<p>Error loading conversations.</p>";
+}
+
+function startEditSubject(conversationDiv, conversationId, currentSubject) {
+    const contentContainer = conversationDiv.querySelector(':scope > div'); 
+    contentContainer.innerHTML = '';
+
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.value = currentSubject;
+    inputField.classList.add('edit-subject-input');
+    contentContainer.appendChild(inputField);
+
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Save';
+    saveButton.classList.add('edit-subject-save');
+    saveButton.addEventListener('click', () => {
+        const newSubject = inputField.value.trim();
+        if (newSubject) {
+            renameConversation(conversationId, newSubject, conversationDiv);
+        } else {
+            revertSubjectEdit(conversationDiv, currentSubject);
         }
-      });
-  }
+    });
+    contentContainer.appendChild(saveButton);
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.classList.add('edit-subject-cancel');
+    cancelButton.addEventListener('click', () => {
+        revertSubjectEdit(conversationDiv, currentSubject);
+    });
+    contentContainer.appendChild(cancelButton);
+}
+
+function revertSubjectEdit(conversationDiv, originalSubject) {
+    const contentContainer = conversationDiv.querySelector(':scope > div');
+    contentContainer.innerHTML = '';
+
+    const textDiv = document.createElement("div");
+    textDiv.textContent = originalSubject;
+    textDiv.style.flexGrow = "1";
+    textDiv.style.marginRight = "10px";
+    textDiv.style.overflow = "hidden";
+    textDiv.style.textOverflow = "ellipsis";
+    textDiv.style.whiteSpace = "nowrap";
+    contentContainer.appendChild(textDiv);
+
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.style.display = "flex";
+    buttonsContainer.style.flexShrink = "0";
+
+    const editButton = document.createElement("span");
+    editButton.textContent = "✏️";
+    editButton.classList.add("edit-conversation-button");
+    editButton.style.cursor = "pointer";
+    editButton.style.marginLeft = "5px";
+    editButton.title = "Edit Subject";
+    editButton.dataset.conversationId = conversationDiv.dataset.conversationId;
+    editButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        startEditSubject(conversationDiv, conversationDiv.dataset.conversationId, originalSubject);
+    });
+    buttonsContainer.appendChild(editButton);
+
+    const deleteButton = document.createElement("span");
+    deleteButton.textContent = "✖";
+    deleteButton.classList.add("delete-conversation");
+    deleteButton.style.cursor = "pointer";
+    deleteButton.style.marginLeft = "5px";
+    deleteButton.title = "Delete Conversation";
+    deleteButton.dataset.conversationId = conversationDiv.dataset.conversationId;
+    deleteButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (confirm("Are you sure you want to delete this conversation?")) {
+            deleteConversation(conversationDiv.dataset.conversationId);
+        }
+    });
+    buttonsContainer.appendChild(deleteButton);
+
+    contentContainer.appendChild(buttonsContainer);
+}
+
+function renameConversation(conversationId, newName, conversationDiv) {
+    fetch("/rename_conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation_id: conversationId, new_name: newName }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Conversation renamed") {
+            // Update the sidebar display
+            const contentContainer = conversationDiv.querySelector(':scope > div');
+            contentContainer.innerHTML = '';
+
+            const textDiv = document.createElement("div");
+            textDiv.textContent = newName;
+            textDiv.style.flexGrow = "1";
+            textDiv.style.marginRight = "10px";
+            textDiv.style.overflow = "hidden";
+            textDiv.style.textOverflow = "ellipsis";
+            textDiv.style.whiteSpace = "nowrap";
+            contentContainer.appendChild(textDiv);
+
+            const buttonsContainer = document.createElement("div");
+            buttonsContainer.style.display = "flex";
+            buttonsContainer.style.flexShrink = "0";
+
+            const editButton = document.createElement("span");
+            editButton.textContent = "✏️";
+            editButton.classList.add("edit-conversation-button");
+            editButton.style.cursor = "pointer";
+            editButton.style.marginLeft = "5px";
+            editButton.title = "Edit Subject";
+            editButton.dataset.conversationId = conversationId;
+            editButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                startEditSubject(conversationDiv, conversationId, newName);
+            });
+            buttonsContainer.appendChild(editButton);
+
+            const deleteButton = document.createElement("span");
+            deleteButton.textContent = "✖";
+            deleteButton.classList.add("delete-conversation");
+            deleteButton.style.cursor = "pointer";
+            deleteButton.style.marginLeft = "5px";
+            deleteButton.title = "Delete Conversation";
+            deleteButton.dataset.conversationId = conversationId;
+            deleteButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                if (confirm("Are you sure you want to delete this conversation?")) {
+                    deleteConversation(conversationId);
+                }
+            });
+            buttonsContainer.appendChild(deleteButton);
+
+            contentContainer.appendChild(buttonsContainer);
+
+            // Optionally update the currentSubject variable if the edited conversation is currently loaded
+            if (currentConversationId === conversationId) {
+                currentSubject = newName;
+                const subjectDisplay = document.getElementById("conversation-subject");
+                if (subjectDisplay) {
+                    subjectDisplay.textContent = "Subject: " + currentSubject;
+                }
+            }
+
+        } else {
+            alert(data.error || "Failed to rename conversation.");
+        }
+    })
+    .catch(error => {
+        console.error("Error renaming conversation:", error);
+        alert("Error renaming conversation.");
+        revertSubjectEdit(conversationDiv, conversationDiv.querySelector(':scope > div > input').value);
+    });
+}
 
   function deleteConversation(conversationId) {
     fetch("/delete_conversation", {
