@@ -319,6 +319,21 @@ button {
   align-items: center;
 }
 
+.edit-subject-input  {
+  font-size: 18px;
+  padding: 0;
+}
+
+.edit-subject-save {
+  font-size: 16px;
+  margin: 5px;
+}
+
+.edit-subject-cancel {
+  font-size: 16px;
+  margin: 5px;
+}
+
 @media (max-width: 768px) {
   .mobile-header {
     display: flex;
