@@ -1,5 +1,3 @@
-let hasDisplayedWelcomeMessage = false;
-
 function init() {
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
@@ -52,13 +50,17 @@ function init() {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function displayWelcomeMessage() {
-    if (!chatBox || chatBox.children.length > 0) return;
 
-    const messageContainer = document.createElement("div");
-    messageContainer.classList.add("bot-message");
-    messageContainer.id = "welcome-message";
-    messageContainer.innerHTML = `
+  function displayWelcomeMessage() {
+    if (!chatBox) return;
+    const hasMessages = chatBox.children.length > 0;
+    const welcomeMessageDisplayed = document.getElementById("welcome-message"); 
+
+    if (!hasMessages && !welcomeMessageDisplayed) { 
+      const messageContainer = document.createElement("div");
+      messageContainer.classList.add("bot-message");
+      messageContainer.id = "welcome-message";
+      messageContainer.innerHTML = `
             <p><strong>How can I help today?</strong></p>
             <ul id="example-prompts">
                 <li class="example">Tell me a fun fact!</li>
@@ -66,16 +68,17 @@ function init() {
                 <li class="example">Can you explain recursion?</li>
             </ul>
       `;
-    chatBox.appendChild(messageContainer);
+      chatBox.appendChild(messageContainer);
 
-    document.querySelectorAll(".example").forEach((item) => {
-      item.addEventListener("click", function () {
-        if (chatInput) {
-          chatInput.value = this.textContent;
-          chatInput.focus();
-        }
+      document.querySelectorAll(".example").forEach((item) => {
+        item.addEventListener("click", function () {
+          if (chatInput) {
+            chatInput.value = this.textContent;
+            chatInput.focus();
+          }
+        });
       });
-    });
+    }
   }
 
   function sendMessage(userMessage) {
@@ -183,91 +186,7 @@ function init() {
     if (subjectInput) subjectInput.value = "";
 
     displayWelcomeMessage();
-    hasDisplayedWelcomeMessage = true;
   }
-
-  // function fetchConversations() {
-  //   const conversationsListContent = document.getElementById(
-  //     "conversations-list-content"
-  //   );
-  //   if (!conversationsListContent) return;
-
-  //   if (!userLoggedIn) {
-  //     conversationsListContent.innerHTML =
-  //       "<p>Please log in to see conversations.</p>";
-  //     return;
-  //   }
-
-  //   fetch("/conversations")
-  //     .then((response) => response.json())
-  //     .then((conversations) => {
-  //       conversationsListContent.innerHTML = "";
-
-  //       if (!conversations || conversations.length === 0) {
-  //         conversationsListContent.innerHTML = "<p>No conversations found.</p>";
-  //         return;
-  //       }
-
-  //       conversations.forEach((conversation) => {
-  //         const conversationDiv = document.createElement("div");
-  //         conversationDiv.classList.add("conversation-item");
-  //         conversationDiv.dataset.conversationId = conversation.conversation_id;
-
-  //         const contentContainer = document.createElement("div");
-  //         contentContainer.style.display = "flex";
-  //         contentContainer.style.alignItems = "center";
-  //         contentContainer.style.justifyContent = "space-between";
-
-  //         const textDiv = document.createElement("div");
-  //         textDiv.textContent =
-  //           conversation.subject ||
-  //           conversation.conversation_name ||
-  //           `Conversation ${conversation.conversation_id.substring(0, 8)}`;
-  //         textDiv.style.flexGrow = "1";
-  //         textDiv.style.marginRight = "10px";
-  //         textDiv.style.overflow = "hidden";
-  //         textDiv.style.textOverflow = "ellipsis";
-  //         textDiv.style.whiteSpace = "nowrap";
-
-  //         contentContainer.appendChild(textDiv);
-
-  //         const buttonsContainer = document.createElement("div");
-  //         buttonsContainer.style.display = "flex";
-  //         buttonsContainer.style.flexShrink = "0";
-
-  //         const deleteButton = document.createElement("span");
-  //         deleteButton.textContent = "✖";
-  //         deleteButton.classList.add("delete-conversation");
-  //         deleteButton.style.cursor = "pointer";
-  //         deleteButton.style.marginLeft = "5px";
-  //         deleteButton.title = "Delete Conversation";
-  //         deleteButton.dataset.conversationId = conversation.conversation_id;
-  //         deleteButton.addEventListener("click", (event) => {
-  //           event.stopPropagation();
-  //           if (confirm("Are you sure you want to delete this conversation?")) {
-  //             deleteConversation(conversation.conversation_id);
-  //           }
-  //         });
-
-  //         buttonsContainer.appendChild(deleteButton);
-  //         contentContainer.appendChild(buttonsContainer);
-  //         conversationDiv.appendChild(contentContainer);
-
-  //         conversationDiv.addEventListener("click", () =>
-  //           loadConversation(conversation.conversation_id)
-  //         );
-
-  //         conversationsListContent.appendChild(conversationDiv);
-  //       });
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching conversations:", error);
-  //       if (conversationsListContent) {
-  //         conversationsListContent.innerHTML =
-  //           "<p>Error loading conversations.</p>";
-  //       }
-  //     });
-  // }
 
   function fetchConversations() {
     const conversationsListContent = document.getElementById(
@@ -553,7 +472,7 @@ function renameConversation(conversationId, newName, conversationDiv) {
       .then((messages) => {
         const chatBox = document.getElementById("chat-box");
         if (chatBox) {
-          chatBox.innerHTML = ""; // Clear the current chat
+          chatBox.innerHTML = ""; 
   
           messages.forEach((msg) => {
             if (msg.user) {
@@ -750,7 +669,7 @@ function renameConversation(conversationId, newName, conversationDiv) {
             authMessage.textContent = data.error || "Login failed.";
             authMessage.style.color = "red";
           } else {
-            alert(data.error || "Login failed."); // Fallback alert
+            alert(data.error || "Login failed."); 
           }
         }
       })
@@ -833,10 +752,8 @@ function renameConversation(conversationId, newName, conversationDiv) {
   const storedConvId = localStorage.getItem("conversationId");
   if (!storedConvId && chatBox && !hasDisplayedWelcomeMessage) {
     displayWelcomeMessage();
-    hasDisplayedWelcomeMessage = true;
   } else if (storedConvId) {
     isNewChat = false;
-    hasDisplayedWelcomeMessage = true;
   }
 
   if (menuToggle && sidebar) {
