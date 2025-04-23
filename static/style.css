@@ -101,14 +101,15 @@ h5 {
 .message.user {
   background-color: #7b68ee;
   color: white;
-  align-self: flex-start;
-  margin-left: 5px;
+  align-self: flex-end;
+  margin-right: 5px;
 }
 
 .message.bot {
   background-color: #fff0f5;
-  align-self: flex-end;
-  margin-right: 5px;
+  align-self: flex-start; 
+  margin-right: auto; 
+  margin-left: 5px;
 }
 
 .chat-form {
@@ -449,6 +450,37 @@ button {
 
   .guest-message {
     font-size: 12px;
+  }
+
+  .message {
+    font-size: 16px;
+    padding: 12px;
+    margin: 8px 5px;
+    width: auto; 
+    max-width: 70%; 
+  }
+
+  .message.user {
+    background-color: #7b68ee;
+    color: white;
+    align-self: flex-start;
+    margin-left: auto;
+    margin-right: 5px;
+  }
+
+  .message.bot {
+    background-color: #fff0f5;
+    color: #8a2be2;
+    align-self: flex-end;
+    margin-right: auto;
+    margin-left: 5px;
+  }
+
+  .chat-box {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
