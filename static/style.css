@@ -15,7 +15,7 @@ body {
   display: flex;
   background-color: #e6e6fa;
   margin: 0;
-  height: 100vh;
+  height: 100%;
 }
 
 .main-wrapper {
@@ -65,9 +65,9 @@ h5 {
 
 /* Chat container and message styles */
 .chat-container {
-  width: calc(100% - 350px); 
+  width: calc(100% - 350px);
   max-width: 900px;
-  height: 80vh;
+  height: 75vh;
   background: #b0c4de;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -150,14 +150,14 @@ h5 {
 /* Sidebar styles */
 .toggle-container {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
 }
 
 .sidebar-container {
   display: flex;
   flex-direction: column;
   width: 400px;
-  background-color: #FFFAFA;
+  background-color: #fffafa;
   padding-left: 20px;
   box-sizing: border-box;
   height: 100vh;
@@ -167,12 +167,14 @@ h5 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100vh;
+  flex-grow: 1;
 }
 
 .conversations-list {
   overflow-y: auto;
   display: block;
-  padding-bottom: 100px;
+  padding-bottom: 20px;
   max-height: 400px;
   overflow-y: auto;
 }
@@ -185,13 +187,13 @@ h5 {
   padding: 5px 10px;
   cursor: pointer;
   font-size: 20px;
-  height: 60%;
+  height: auto;
 }
 
 .conversation-item {
   padding: 10px;
   margin-bottom: 10px;
-  background-color: #FFFAFA;
+  background-color: #fffafa;
   border: 1px solid #ccc;
   cursor: pointer;
 }
@@ -222,7 +224,6 @@ h5 {
   width: 95%;
 }
 
-
 /* Button styles */
 button {
   padding: 8px 8px;
@@ -237,8 +238,8 @@ button {
 
 .form-buttons {
   display: flex;
-  justify-content: center; 
-  margin-top: 10px; 
+  justify-content: center;
+  margin-top: 10px;
 }
 
 .form-buttons button {
@@ -256,9 +257,7 @@ button {
 }
 
 #new-chat-button {
-  margin-top: auto;
   margin-bottom: 20px;
-  margin-top: 80px;
   width: 80%;
 }
 
@@ -311,7 +310,7 @@ button {
 
 #toggle-auth {
   padding: 10px 16px;
-  background-color: #D8BFD8;
+  background-color: #d8bfd8;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -323,7 +322,7 @@ button {
 @media (max-width: 768px) {
   .mobile-header {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
     padding: 10px;
     position: absolute;
@@ -333,7 +332,7 @@ button {
   }
 
   .auth-sidebar {
-    margin-top: 60px; 
+    margin-top: 60px;
   }
 
   #menu-toggle {
@@ -342,7 +341,7 @@ button {
     border: none;
     cursor: pointer;
     padding: 5px;
-    color: #6A5ACD;
+    color: #6a5acd;
     margin-bottom: 30px;
   }
 
@@ -354,7 +353,7 @@ button {
     height: 100vh;
     background: #f0f0f0;
     transition: left 0.3s ease;
-    padding: 10px; 
+    padding: 10px;
   }
 
   .sidebar-container.active {
@@ -370,7 +369,7 @@ button {
     font-size: 30px;
     cursor: pointer;
     display: block;
-    color: 	#6A5ACD;
+    color: #6a5acd;
   }
 
   .chat-container {
@@ -380,7 +379,7 @@ button {
   }
 
   .conversations-list {
-    max-height: 150px; 
+    max-height: 150px;
   }
 
   #chat-input {
@@ -440,10 +439,10 @@ button {
 
 @media (min-width: 769px) {
   .mobile-header {
-    display: none; 
+    display: none;
   }
 
   #close-menu {
-    display: none; 
+    display: none;
   }
 }
