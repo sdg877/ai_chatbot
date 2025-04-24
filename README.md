@@ -1,4 +1,4 @@
-Chatbot Web App - completed March 2025
+Chatbot Web App - completed March/April 2025
 
 
 Description
@@ -91,6 +91,19 @@ Logged In - No chats
 ![Logged in - Chats](https://github.com/user-attachments/assets/08ef0175-4391-438d-8d1d-8f73c40a2c16)
 
 Logged In - Saved Chats
+
+![MF chat view](https://github.com/user-attachments/assets/94cc7d87-7470-48a1-ac24-50acfa3b6afc)
+
+Mobile Friendly - Chat View
+
+![MF guest user](https://github.com/user-attachments/assets/8f333c96-a982-4bb2-9c24-7ca68566e943)
+
+Mobile Friendly - Guest User
+
+![MF logged in](https://github.com/user-attachments/assets/a4700685-59f1-4d23-90ba-8c09ee9267b2)
+
+Mobile Friendly - Logged In User
+
 
 
 
