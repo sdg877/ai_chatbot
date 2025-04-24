@@ -19,6 +19,7 @@ function init() {
   let currentConversationName = null;
   let currentSubject = null;
   let isNewChat = true;
+  let hasDisplayedWelcomeMessage = false;
 
   const userLoggedIn = !!document.querySelector(".user-info");
 
