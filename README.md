@@ -84,6 +84,16 @@ Guest User
 
 Guest User - Chat started
 
+![Logged In No Chats](https://github.com/user-attachments/assets/03afb059-17ad-4481-a199-7d9e62589e9a)
+
+Logged In - No chats
+
+![Logged in - Chats](https://github.com/user-attachments/assets/08ef0175-4391-438d-8d1d-8f73c40a2c16)
+
+Logged In - Saved Chats
+
+
+
 
 
 
