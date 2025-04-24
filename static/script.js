@@ -189,100 +189,104 @@ function init() {
     displayWelcomeMessage();
   }
 
-  function fetchConversations() {
-    const conversationsListContent = document.getElementById(
-        "conversations-list-content"
-    );
-    if (!conversationsListContent) return;
 
-    if (!userLoggedIn) {
-        conversationsListContent.innerHTML =
-            "<p>Please log in to see conversations.</p>";
+function fetchConversations() {
+  const conversationsListContent = document.getElementById("conversations-list-content");
+  if (!conversationsListContent) return;
+
+  if (!userLoggedIn) {
+    conversationsListContent.innerHTML = "<p>Please log in to see conversations.</p>";
+    return;
+  }
+
+  fetch("/conversations")
+    .then((response) => response.json())
+    .then((conversations) => {
+      conversationsListContent.innerHTML = "";
+
+      if (!conversations || conversations.length === 0) {
+        conversationsListContent.innerHTML = "<p>No conversations found.</p>";
         return;
-    }
+      }
 
-    fetch("/conversations")
-        .then((response) => response.json())
-        .then((conversations) => {
-            conversationsListContent.innerHTML = "";
+      conversations.forEach((conversation) => {
+        const conversationDiv = document.createElement("div");
+        conversationDiv.dataset.conversationId = conversation.conversation_id;
 
-            if (!conversations || conversations.length === 0) {
-                conversationsListContent.innerHTML = "<p>No conversations found.</p>";
-                return;
-            }
+        const contentContainer = document.createElement("div");
+        contentContainer.classList.add("conversation-item");
+        contentContainer.style.display = "flex";
+        contentContainer.style.alignItems = "center";
+        contentContainer.style.justifyContent = "space-between"; 
 
-            conversations.forEach((conversation) => {
-                const conversationDiv = document.createElement("div");
-                conversationDiv.classList.add("conversation-item");
-                conversationDiv.dataset.conversationId = conversation.conversation_id;
+        const textDiv = document.createElement("div");
+        textDiv.textContent =
+          conversation.subject ||
+          conversation.conversation_name ||
+          `Chat ${conversation.conversation_id.substring(0, 8)}`;
+        textDiv.style.flexGrow = "1";
+        textDiv.style.marginRight = "10px";
+        textDiv.style.overflow = "hidden";
+        textDiv.style.textOverflow = "ellipsis";
+        textDiv.style.whiteSpace = "nowrap";
 
-                const contentContainer = document.createElement("div");
-                contentContainer.style.display = "flex";
-                contentContainer.style.alignItems = "center";
-                contentContainer.style.justifyContent = "space-between";
+        const iconsContainer = document.createElement("div");
+        iconsContainer.classList.add("conversation-icons");
+        iconsContainer.style.display = "flex";
+        iconsContainer.style.alignItems = "center";
+        iconsContainer.style.flexShrink = "0";
 
-                const textDiv = document.createElement("div");
-                textDiv.textContent =
-                    conversation.subject ||
-                    conversation.conversation_name ||
-                    `Chat ${conversation.conversation_id.substring(0, 8)}`;
-                textDiv.style.flexGrow = "1";
-                textDiv.style.marginRight = "10px";
-                textDiv.style.overflow = "hidden";
-                textDiv.style.textOverflow = "ellipsis";
-                textDiv.style.whiteSpace = "nowrap";
-                contentContainer.appendChild(textDiv);
-
-                const buttonsContainer = document.createElement("div");
-                buttonsContainer.style.display = "flex";
-                buttonsContainer.style.flexShrink = "0";
-
-                const editButton = document.createElement("span");
-                editButton.textContent = "✏️"; 
-                editButton.classList.add("edit-conversation-button");
-                editButton.style.cursor = "pointer";
-                editButton.style.marginLeft = "5px";
-                editButton.title = "Edit Subject";
-                editButton.dataset.conversationId = conversation.conversation_id;
-                editButton.addEventListener("click", (event) => {
-                    event.stopPropagation(); 
-                    startEditSubject(conversationDiv, conversation.conversation_id, textDiv.textContent);
-                });
-                buttonsContainer.appendChild(editButton);
-
-                const deleteButton = document.createElement("span");
-                deleteButton.textContent = "✖";
-                deleteButton.classList.add("delete-conversation");
-                deleteButton.style.cursor = "pointer";
-                deleteButton.style.marginLeft = "5px";
-                deleteButton.title = "Delete Conversation";
-                deleteButton.dataset.conversationId = conversation.conversation_id;
-                deleteButton.addEventListener("click", (event) => {
-                    event.stopPropagation();
-                    if (confirm("Are you sure you want to delete this conversation?")) {
-                        deleteConversation(conversation.conversation_id);
-                    }
-                });
-                buttonsContainer.appendChild(deleteButton);
-
-                contentContainer.appendChild(buttonsContainer);
-                conversationDiv.appendChild(contentContainer);
-
-                conversationDiv.addEventListener("click", () =>
-                    loadConversation(conversation.conversation_id)
-                );
-
-                conversationsListContent.appendChild(conversationDiv);
-            });
-        })
-        .catch((error) => {
-            console.error("Error fetching conversations:", error);
-            if (conversationsListContent) {
-                conversationsListContent.innerHTML =
-                    "<p>Error loading conversations.</p>";
-            }
+        const editButton = document.createElement("span");
+        editButton.textContent = "✏️";
+        editButton.classList.add("edit-conversation-button");
+        editButton.style.cursor = "pointer";
+        editButton.style.marginLeft = "5px";
+        editButton.title = "Edit Subject";
+        editButton.dataset.conversationId = conversation.conversation_id;
+        editButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          startEditSubject(
+            conversationDiv,
+            conversation.conversation_id,
+            textDiv.textContent
+          );
         });
+        iconsContainer.appendChild(editButton);
+
+        const deleteButton = document.createElement("span");
+        deleteButton.textContent = "✖";
+        deleteButton.classList.add("delete-conversation");
+        deleteButton.style.cursor = "pointer";
+        deleteButton.style.marginLeft = "5px";
+        deleteButton.title = "Delete Conversation";
+        deleteButton.dataset.conversationId = conversation.conversation_id;
+        deleteButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (confirm("Are you sure you want to delete this conversation?")) {
+            deleteConversation(conversation.conversation_id);
+          }
+        });
+        iconsContainer.appendChild(deleteButton);
+
+        contentContainer.appendChild(textDiv); // ✅ Only appended once now
+        contentContainer.appendChild(iconsContainer);
+        conversationDiv.appendChild(contentContainer);
+
+        conversationDiv.addEventListener("click", () =>
+          loadConversation(conversation.conversation_id)
+        );
+
+        conversationsListContent.appendChild(conversationDiv);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching conversations:", error);
+      if (conversationsListContent) {
+        conversationsListContent.innerHTML = "<p>Error loading conversations.</p>";
+      }
+    });
 }
+
 
 function startEditSubject(conversationDiv, conversationId, currentSubject) {
     const contentContainer = conversationDiv.querySelector(':scope > div'); 
