@@ -75,6 +75,15 @@ Add unit and integration tests.
 Add image and file upload capabilities.
 
 
+Screenshots
+![Desktop No Message](https://github.com/user-attachments/assets/4e049c19-0654-465c-8c00-291d3454955b)
+
+Guest User 
+
+![Chat Not Logged In](https://github.com/user-attachments/assets/8f78b3af-8eae-4a1a-b9af-63c53809a548)
+
+Guest User - Chat started
+
 
 
 
