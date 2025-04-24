@@ -338,6 +338,42 @@ button {
 }
 
 @media (max-width: 768px) {
+  .conversation-item {
+    padding: 6px !important;
+    margin-bottom: 6px !important;
+    display: flex;
+    align-items: center;
+    font-size: 12px !important;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .conversation-icons {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 4px; 
+  }
+
+  .conversations-list-content {
+    padding: 4px 8px !important;
+    max-height: fit-content;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .delete-conversation {
+    font-size: 14px;
+    margin-left: 5px;
+  }
+
+  .edit-conversation-button {
+    font-size: 14px;
+    margin-right: 5px;
+  }
+
   .mobile-header {
     display: flex;
     justify-content: center;
@@ -372,6 +408,8 @@ button {
     background: #f0f0f0;
     transition: left 0.3s ease;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
   }
 
   .sidebar-container.active {
@@ -397,7 +435,9 @@ button {
   }
 
   .conversations-list {
-    max-height: 150px;
+    max-height: none !important;
+    overflow-y: auto;
+    flex-grow: 1;
   }
 
   #chat-input {
@@ -423,26 +463,21 @@ button {
   }
 
   h5 {
-    font-size: 20px;
+    font-size: 14px;
     margin-bottom: 10px;
   }
 
   .search-container {
     flex-direction: column;
     align-items: stretch;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 
   #search-input,
   #search-button {
-    font-size: 16px;
+    font-size: 14px;
     height: auto;
-    padding: 8px;
-  }
-
-  .conversations-list-content {
-    font-size: 16px;
-    padding: 5px;
+    padding: 6px;
   }
 
   .auth-form input {
@@ -458,8 +493,8 @@ button {
     font-size: 16px;
     padding: 12px;
     margin: 8px 5px;
-    width: auto; 
-    max-width: 70%; 
+    width: auto;
+    max-width: 70%;
   }
 
   .message.user {
@@ -483,6 +518,23 @@ button {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+  }
+
+  #new-chat-button {
+    font-size: 12px;
+    margin-bottom: 10px;
+    width: 90%;
+    margin-top: auto !important;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px !important;
+    background-color: #9370d8;
+    color: white;
+    text-align: center;
+    border-radius: 0;
+    z-index: 10;
   }
 }
 
